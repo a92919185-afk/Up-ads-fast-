@@ -11,7 +11,10 @@ const LANGUAGES = [
   { value: "pt", label: "🇧🇷 Português (pt)" },
   { value: "es", label: "🇪🇸 Español (es)" },
   { value: "de", label: "🇩🇪 Deutsch (de)" },
+  { value: "fr", label: "🇫🇷 Français (fr)" },
+  { value: "fi", label: "🇫🇮 Suomi (fi)" },
   { value: "da", label: "🇩🇰 Dansk (da)" },
+  { value: "ro", label: "🇷🇴 Română (ro)" },
 ];
 
 interface Props {
@@ -25,7 +28,7 @@ export default function EditStep({ initialData, onConfirm, onBack, loading }: Pr
   const [form, setForm] = useState({
     product:          initialData.product         ?? "",
     country:          initialData.country         ?? "",
-    language:         initialData.language        ?? "en",
+    language:         LANGUAGES.find(l => l.value === initialData.language) ? initialData.language : "",
     price:            initialData.price           ?? "",
     currency:         initialData.currency        ?? "$",
     discount:         initialData.discount        ?? "",
@@ -62,10 +65,12 @@ export default function EditStep({ initialData, onConfirm, onBack, loading }: Pr
         {field("País", "country", "US")}
 
         <div className="space-y-1.5">
-          <Label className="text-zinc-400 text-xs uppercase tracking-wide">Idioma</Label>
+          <Label className={`text-xs uppercase tracking-wide ${!form.language ? "text-amber-400" : "text-zinc-400"}`}>
+            Idioma {!form.language && "⚠ selecione"}
+          </Label>
           <Select value={form.language} onValueChange={(v) => setForm(f => ({ ...f, language: v ?? f.language }))}>
-            <SelectTrigger className="bg-zinc-900 border-white/10 text-white h-10">
-              <SelectValue />
+            <SelectTrigger className={`bg-zinc-900 text-white h-10 ${!form.language ? "border-amber-500/60" : "border-white/10"}`}>
+              <SelectValue placeholder="Selecione o idioma" />
             </SelectTrigger>
             <SelectContent className="bg-zinc-900 border-white/10">
               {LANGUAGES.map(l => (
@@ -104,7 +109,7 @@ export default function EditStep({ initialData, onConfirm, onBack, loading }: Pr
         </Button>
         <Button
           onClick={() => onConfirm(form)}
-          disabled={!form.product || !form.url || loading}
+          disabled={!form.product || !form.url || !form.language || loading}
           className="flex-1 h-11 bg-blue-600 hover:bg-blue-500 text-white font-semibold"
         >
           {loading ? "Gerando..." : "Gerar Planilha →"}

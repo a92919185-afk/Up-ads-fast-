@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { GeneratedCopy, CopyContext } from "@/lib/templates";
+import { effectiveLength } from "@/lib/templates";
 
 interface Props {
   copy: GeneratedCopy;
@@ -14,28 +14,67 @@ interface Props {
   onBack: () => void;
 }
 
+// ─── Character badge ──────────────────────────────────────────────────────────
+
 function CharBadge({ value, limit }: { value: string; limit: number }) {
-  const len = value.length;
+  const len = effectiveLength(value); // count as Google counts (strips macro syntax)
   const ok = len <= limit;
   return (
-    <span className={`text-xs font-mono px-1.5 py-0.5 rounded ${ok ? "bg-emerald-900/50 text-emerald-400" : "bg-red-900/50 text-red-400"}`}>
+    <span className={`text-xs font-mono px-1.5 py-0.5 rounded shrink-0 ${ok ? "bg-emerald-900/50 text-emerald-400" : "bg-red-900/50 text-red-400"}`}>
       {len}/{limit}
     </span>
   );
 }
 
-function Row({ label, value, limit }: { label: string; value: string; limit: number }) {
+// ─── Inline editable cell ─────────────────────────────────────────────────────
+
+function EditCell({
+  value, limit, onChange, mono = false,
+}: {
+  value: string; limit: number; onChange: (v: string) => void; mono?: boolean;
+}) {
   return (
-    <tr className="border-b border-white/5 hover:bg-white/2">
-      <td className="py-2 px-3 text-zinc-500 text-xs font-mono w-12">{label}</td>
-      <td className="py-2 px-3 text-zinc-200 text-sm">{value}</td>
-      <td className="py-2 px-3 text-right"><CharBadge value={value} limit={limit} /></td>
-    </tr>
+    <div className="flex items-start gap-2 w-full">
+      <textarea
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        rows={1}
+        className={`flex-1 bg-transparent text-zinc-200 text-sm resize-none outline-none border-b border-transparent hover:border-white/20 focus:border-blue-500 transition-colors py-0.5 leading-snug ${mono ? "font-mono text-xs" : ""}`}
+        style={{ minHeight: "1.4rem" }}
+        onInput={e => {
+          const el = e.currentTarget;
+          el.style.height = "auto";
+          el.style.height = el.scrollHeight + "px";
+        }}
+      />
+      <CharBadge value={value} limit={limit} />
+    </div>
   );
 }
 
-export default function PreviewStep({ copy, ctx, language, url, onBack }: Props) {
+// ─── Main component ───────────────────────────────────────────────────────────
+
+export default function PreviewStep({ copy: initialCopy, ctx, language, url, onBack }: Props) {
+  const [copy, setCopy] = useState<GeneratedCopy>(initialCopy);
   const [downloading, setDownloading] = useState(false);
+
+  const setHeadline = (i: number, v: string) =>
+    setCopy(c => ({ ...c, headlines: c.headlines.map((h, j) => j === i ? v : h) }));
+
+  const setDescription = (i: number, v: string) =>
+    setCopy(c => ({ ...c, descriptions: c.descriptions.map((d, j) => j === i ? v : d) }));
+
+  const setCallout = (i: number, v: string) =>
+    setCopy(c => ({ ...c, callouts: c.callouts.map((x, j) => j === i ? v : x) }));
+
+  const setSitelinkField = (i: number, field: "text" | "d1" | "d2" | "url", v: string) =>
+    setCopy(c => ({
+      ...c,
+      sitelinks: c.sitelinks.map((sl, j) => j === i ? { ...sl, [field]: v } : sl),
+    }));
+
+  const setSnippetValue = (i: number, v: string) =>
+    setCopy(c => ({ ...c, snippetValues: c.snippetValues.map((x, j) => j === i ? v : x) }));
 
   async function handleDownload() {
     setDownloading(true);
@@ -60,22 +99,22 @@ export default function PreviewStep({ copy, ctx, language, url, onBack }: Props)
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-semibold text-white">Preview da Campanha</h2>
-          <p className="text-zinc-500 text-sm">{copy.campaign}</p>
-        </div>
-        <Badge className="bg-emerald-900/40 text-emerald-400 border-emerald-800">✓ Limites OK</Badge>
+      <div>
+        <h2 className="text-xl font-semibold text-white">Preview da Campanha</h2>
+        <p className="text-zinc-500 text-sm">
+          {copy.campaign}
+          <span className="text-zinc-600 text-xs ml-2">· clique em qualquer campo para editar</span>
+        </p>
       </div>
 
       <Tabs defaultValue="rsa" className="w-full">
         <TabsList className="w-full bg-zinc-900 border border-white/8 flex">
           {[
-            { value: "rsa",      label: "RSA" },
-            { value: "callouts", label: "Callouts" },
-            { value: "sitelinks",label: "Sitelinks" },
-            { value: "snippets", label: "Snippets" },
-            { value: "promo",    label: "Promoção" },
+            { value: "rsa",       label: "RSA" },
+            { value: "callouts",  label: "Callouts" },
+            { value: "sitelinks", label: "Sitelinks" },
+            { value: "snippets",  label: "Snippets" },
+            { value: "promo",     label: "Promoção" },
           ].map(t => (
             <TabsTrigger key={t.value} value={t.value} className="flex-1 text-xs data-[state=active]:bg-zinc-700">
               {t.label}
@@ -83,44 +122,57 @@ export default function PreviewStep({ copy, ctx, language, url, onBack }: Props)
           ))}
         </TabsList>
 
+        {/* ── RSA ── */}
         <TabsContent value="rsa" className="mt-3">
           <div className="rounded-lg border border-white/8 overflow-hidden">
             <table className="w-full text-sm">
               <thead><tr className="bg-zinc-900 border-b border-white/8">
-                <th className="py-2 px-3 text-left text-zinc-500 text-xs w-12">#</th>
+                <th className="py-2 px-3 text-left text-zinc-500 text-xs w-10">#</th>
                 <th className="py-2 px-3 text-left text-zinc-500 text-xs">Texto</th>
-                <th className="py-2 px-3 text-right text-zinc-500 text-xs">Chars</th>
               </tr></thead>
               <tbody>
-                {copy.headlines.map((h, i) => <Row key={i} label={`H${i+1}`} value={h} limit={30} />)}
-                {copy.descriptions.map((d, i) => <Row key={i} label={`D${i+1}`} value={d} limit={90} />)}
-                <tr className="border-b border-white/5">
-                  <td className="py-2 px-3 text-zinc-500 text-xs">P1</td>
-                  <td className="py-2 px-3 text-zinc-200 text-sm">{copy.path1}</td>
-                  <td className="py-2 px-3 text-right"><CharBadge value={copy.path1} limit={15} /></td>
+                {copy.headlines.map((h, i) => (
+                  <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02]">
+                    <td className="py-2 px-3 text-zinc-500 text-xs font-mono">{`H${i+1}`}</td>
+                    <td className="py-2 px-3"><EditCell value={h} limit={30} onChange={v => setHeadline(i, v)} /></td>
+                  </tr>
+                ))}
+                {copy.descriptions.map((d, i) => (
+                  <tr key={`d${i}`} className="border-b border-white/5 hover:bg-white/[0.02]">
+                    <td className="py-2 px-3 text-zinc-500 text-xs font-mono">{`D${i+1}`}</td>
+                    <td className="py-2 px-3"><EditCell value={d} limit={90} onChange={v => setDescription(i, v)} /></td>
+                  </tr>
+                ))}
+                <tr className="border-b border-white/5 hover:bg-white/[0.02]">
+                  <td className="py-2 px-3 text-zinc-500 text-xs font-mono">P1</td>
+                  <td className="py-2 px-3">
+                    <EditCell value={copy.path1} limit={15} onChange={v => setCopy(c => ({ ...c, path1: v }))} mono />
+                  </td>
                 </tr>
-                <tr>
-                  <td className="py-2 px-3 text-zinc-500 text-xs">P2</td>
-                  <td className="py-2 px-3 text-zinc-200 text-sm">{copy.path2}</td>
-                  <td className="py-2 px-3 text-right"><CharBadge value={copy.path2} limit={15} /></td>
+                <tr className="hover:bg-white/[0.02]">
+                  <td className="py-2 px-3 text-zinc-500 text-xs font-mono">P2</td>
+                  <td className="py-2 px-3">
+                    <EditCell value={copy.path2} limit={15} onChange={v => setCopy(c => ({ ...c, path2: v }))} mono />
+                  </td>
                 </tr>
               </tbody>
             </table>
           </div>
         </TabsContent>
 
+        {/* ── Callouts ── */}
         <TabsContent value="callouts" className="mt-3">
           <div className="rounded-lg border border-white/8 overflow-hidden">
             <table className="w-full">
               <thead><tr className="bg-zinc-900 border-b border-white/8">
+                <th className="py-2 px-3 text-left text-zinc-500 text-xs w-10">#</th>
                 <th className="py-2 px-3 text-left text-zinc-500 text-xs">Texto</th>
-                <th className="py-2 px-3 text-right text-zinc-500 text-xs">Chars</th>
               </tr></thead>
               <tbody>
                 {copy.callouts.map((c, i) => (
-                  <tr key={i} className="border-b border-white/5 last:border-0">
-                    <td className="py-2 px-3 text-zinc-200 text-sm">{c}</td>
-                    <td className="py-2 px-3 text-right"><CharBadge value={c} limit={25} /></td>
+                  <tr key={i} className="border-b border-white/5 last:border-0 hover:bg-white/[0.02]">
+                    <td className="py-2 px-3 text-zinc-500 text-xs font-mono">{i+1}</td>
+                    <td className="py-2 px-3"><EditCell value={c} limit={25} onChange={v => setCallout(i, v)} /></td>
                   </tr>
                 ))}
               </tbody>
@@ -128,60 +180,58 @@ export default function PreviewStep({ copy, ctx, language, url, onBack }: Props)
           </div>
         </TabsContent>
 
+        {/* ── Sitelinks ── */}
         <TabsContent value="sitelinks" className="mt-3">
           <div className="rounded-lg border border-white/8 overflow-hidden">
             <table className="w-full text-sm">
               <thead><tr className="bg-zinc-900 border-b border-white/8">
+                <th className="py-2 px-3 text-left text-zinc-500 text-xs w-6">#</th>
                 <th className="py-2 px-3 text-left text-zinc-500 text-xs">Text</th>
                 <th className="py-2 px-3 text-left text-zinc-500 text-xs">Desc 1</th>
                 <th className="py-2 px-3 text-left text-zinc-500 text-xs">Desc 2</th>
+                <th className="py-2 px-3 text-left text-zinc-500 text-xs">URL</th>
               </tr></thead>
               <tbody>
                 {copy.sitelinks.map((sl, i) => (
-                  <tr key={i} className="border-b border-white/5 last:border-0">
-                    <td className="py-2 px-3">
-                      <div className="text-zinc-200">{sl.text}</div>
-                      <CharBadge value={sl.text} limit={25} />
-                    </td>
-                    <td className="py-2 px-3">
-                      <div className="text-zinc-300 text-xs">{sl.d1}</div>
-                      <CharBadge value={sl.d1} limit={35} />
-                    </td>
-                    <td className="py-2 px-3">
-                      <div className="text-zinc-300 text-xs">{sl.d2}</div>
-                      <CharBadge value={sl.d2} limit={35} />
+                  <tr key={i} className="border-b border-white/5 last:border-0 hover:bg-white/[0.02] align-top">
+                    <td className="py-2 px-3 text-zinc-500 text-xs font-mono pt-3">{i+1}</td>
+                    <td className="py-2 px-3 w-36"><EditCell value={sl.text} limit={25} onChange={v => setSitelinkField(i, "text", v)} /></td>
+                    <td className="py-2 px-3 w-44"><EditCell value={sl.d1}   limit={35} onChange={v => setSitelinkField(i, "d1", v)} /></td>
+                    <td className="py-2 px-3 w-44"><EditCell value={sl.d2}   limit={35} onChange={v => setSitelinkField(i, "d2", v)} /></td>
+                    <td className="py-2 px-3 min-w-[160px]">
+                      <EditCell value={sl.url} limit={2048} onChange={v => setSitelinkField(i, "url", v)} mono />
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+          <p className="text-zinc-600 text-xs mt-2">URLs com pequenas variações — necessário para o Google aceitar sitelinks sem rejeitar links idênticos</p>
         </TabsContent>
 
+        {/* ── Snippets ── */}
         <TabsContent value="snippets" className="mt-3">
           <div className="rounded-lg border border-white/8 p-4 space-y-3">
             <p className="text-zinc-400 text-xs uppercase tracking-wide">Header</p>
             <p className="text-white font-medium">{copy.snippetHeader}</p>
             <p className="text-zinc-400 text-xs uppercase tracking-wide mt-3">Valores</p>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-col gap-2">
               {copy.snippetValues.map((v, i) => (
-                <div key={i} className="flex items-center gap-1.5">
-                  <span className="text-zinc-200 text-sm">{v}</span>
-                  <CharBadge value={v} limit={25} />
-                </div>
+                <EditCell key={i} value={v} limit={25} onChange={val => setSnippetValue(i, val)} />
               ))}
             </div>
           </div>
         </TabsContent>
 
+        {/* ── Promoção ── */}
         <TabsContent value="promo" className="mt-3">
           <div className="rounded-lg border border-white/8 p-4 space-y-3">
-            {[
+            {([
               ["Campanha", copy.campaign],
               ["Occasion", copy.promo.occasion],
               ["Discount type", copy.promo.discountType],
               ["Percent off", String(copy.promo.percentOff)],
-            ].map(([k, v]) => (
+            ] as [string, string][]).map(([k, v]) => (
               <div key={k} className="flex justify-between">
                 <span className="text-zinc-500 text-sm">{k}</span>
                 <span className="text-zinc-200 text-sm font-mono">{v}</span>

@@ -50,11 +50,37 @@ export function render(template: string, ctx: CopyContext): string {
     .replace(/\{ship_min\}/g, ctx.ship_min);
 }
 
+/**
+ * Strips Google Ads macro wrappers to get the text Google actually measures.
+ * {KeyWord:Slimanol}          → "Slimanol"
+ * {LOCATION(City):Miami}      → "Miami"
+ */
+export function effectiveText(text: string): string {
+  return text
+    .replace(/\{KeyWord:([^}]+)\}/gi, "$1")
+    .replace(/\{LOCATION\([^)]+\):([^}]+)\}/gi, "$1");
+}
+
+export function effectiveLength(text: string): number {
+  return effectiveText(text).length;
+}
+
+/**
+ * Truncates at word boundary so effectiveLength(result) <= limit.
+ * Treats Google macro tags ({KeyWord:...}, {LOCATION...:...}) as atomic tokens —
+ * they are never split mid-tag.
+ */
 export function trunc(text: string, limit: number): string {
-  if (text.length <= limit) return text;
-  const truncated = text.slice(0, limit);
-  const lastSpace = truncated.lastIndexOf(" ");
-  return lastSpace > 0 ? truncated.slice(0, lastSpace).trimEnd() : truncated;
+  if (effectiveLength(text) <= limit) return text;
+  // Tokenize: each tag or whitespace-separated word is one token
+  const tokens = text.match(/\{[^}]+\}|[^\s]+/g) ?? [];
+  let result = "";
+  for (const token of tokens) {
+    const candidate = result ? result + " " + token : token;
+    if (effectiveLength(candidate) > limit) break;
+    result = candidate;
+  }
+  return result;
 }
 
 export function renderTrunc(template: string, ctx: CopyContext, limit: number): string {
@@ -74,28 +100,30 @@ interface LangTemplates {
 
 const COPY: Record<string, LangTemplates> = {
   en: {
+    // H1–H13: DKI (87% ≈ 90%) | H14–H15: Location (shipping/scarcity focus)
     h: [
-      "{product} Official Site",
-      "Up To {discount}% Off Today",
-      "Buy 1 Get 1 {discount}% Off",
-      "Free {country} Shipping",
-      "{guarantee}-Day Money-Back",
-      "Order {product} For {currency}{price}",
-      "Limited Time {discount}% Sale",
-      "Claim Your {discount}% Off",
-      "Special Offer: {discount}% Off",
-      "{product} - {discount}% Off Sale",
-      "Try {product} Risk-Free",
-      "Free Shipping Over {currency}{ship_min}",
-      "Exclusive Bundle Price",
-      "Secure Your Order Now",
-      "Order Today Save {discount}%",
+      "{KeyWord:{product}} Official Site",
+      "{KeyWord:{product}} {discount}% Off",
+      "{KeyWord:{product}} Risk-Free Trial",
+      "{KeyWord:{product}} Bundle Deal",
+      "{KeyWord:{product}} {guarantee}-Day",
+      "Order {KeyWord:{product}} Now",
+      "{discount}% Off {KeyWord:{product}}",
+      "{KeyWord:{product}} Sale Today",
+      "{KeyWord:{product}} {currency}{price}",
+      "Try {KeyWord:{product}} Today",
+      "{KeyWord:{product}} Free Shipping",
+      "{KeyWord:{product}} Exclusive Offer",
+      "{KeyWord:{product}} Near You",
+      "Ship to {LOCATION(City):Miami}",
+      "Near {LOCATION(City):Miami}? Order Now",
     ],
+    // D1+D3: DKI + Location (50%) | D2+D4: DKI only (100% DKI total)
     d: [
-      "Get up to {discount}% off {product} today. Buy 1 get 1 {discount}% off. Free {country} shipping on orders over {currency}{ship_min}.",
-      "Try {product} risk-free with our {guarantee}-day money-back guarantee. Order now starting at just {currency}{price}.",
-      "Limited time offer! Claim your {discount}% discount on {product} bundles today. Delivery to the {country}.",
-      "Buy {product} for only {currency}{price}. Enjoy a {guarantee}-day guarantee and up to {discount}% off today.",
+      "{KeyWord:{product}} {discount}% off. Free delivery to {LOCATION(City):Miami}. {guarantee}-day money-back guarantee.",
+      "Try {KeyWord:{product}} risk-free with our {guarantee}-day guarantee. Order now from {currency}{price}.",
+      "{discount}% off {KeyWord:{product}} bundles. Fast shipping to {LOCATION(City):Miami} and beyond.",
+      "Buy {KeyWord:{product}} for {currency}{price}. Enjoy a {guarantee}-day guarantee and {discount}% off today.",
     ],
     callouts: [
       "Up To {discount}% Off",
@@ -117,28 +145,29 @@ const COPY: Record<string, LangTemplates> = {
   },
 
   pt: {
+    // H1–H13: DKI (87% ≈ 90%) | H14–H15: Localização (frete/escassez)
     h: [
-      "{product} Site Oficial",
-      "Até {discount}% OFF Hoje",
-      "Compre 1 Leve 2 c/{discount}% OFF",
-      "Frete Grátis no Brasil",
-      "Garantia de {guarantee} Dias",
-      "{product} Por {currency}{price}",
-      "Oferta Limitada {discount}% OFF",
-      "Garanta {discount}% de Desconto",
-      "Oferta Especial: {discount}% OFF",
-      "{product} {discount}% Desconto",
-      "Experimente Sem Risco",
-      "Frete Grátis Acima {currency}{ship_min}",
-      "Preço de Kit Exclusivo",
-      "Compre com Segurança",
-      "Peça Hoje, Economize {discount}%",
+      "{KeyWord:{product}} Site Oficial",
+      "{KeyWord:{product}} {discount}% OFF Hoje",
+      "Kit {KeyWord:{product}} {discount}% OFF",
+      "{KeyWord:{product}} Sem Risco",
+      "{KeyWord:{product}} {guarantee} Dias",
+      "Peça {KeyWord:{product}} Agora",
+      "{discount}% OFF {KeyWord:{product}}",
+      "{KeyWord:{product}} Oferta Hoje",
+      "{KeyWord:{product}} {currency}{price}",
+      "Experimente {KeyWord:{product}}",
+      "{KeyWord:{product}} Frete Grátis",
+      "{KeyWord:{product}} Oferta Exclusiva",
+      "{KeyWord:{product}} Perto de Você",
+      "Entrega em {LOCATION(City):São Paulo}",
+      "Perto de {LOCATION(City):Rio}? Peça Já",
     ],
     d: [
-      "Até {discount}% OFF em {product} hoje. Frete grátis acima de {currency}{ship_min}. Garantia de {guarantee} dias.",
-      "Experimente {product} sem risco — {guarantee} dias de garantia. Compre agora por {currency}{price}.",
-      "Oferta limitada! {discount}% OFF em kits de {product} hoje. Entrega para todo o Brasil.",
-      "{product} por {currency}{price}. Garantia de {guarantee} dias e até {discount}% de desconto hoje.",
+      "{KeyWord:{product}} {discount}% OFF agora. Entrega em {LOCATION(City):São Paulo} e todo o Brasil. Garantia de {guarantee} dias.",
+      "Experimente {KeyWord:{product}} sem risco com garantia de {guarantee} dias. Compre agora por {currency}{price}.",
+      "{discount}% OFF em kits {KeyWord:{product}} hoje. Envio rápido para {LOCATION(City):São Paulo} e todo o país.",
+      "Compre {KeyWord:{product}} por {currency}{price}. Garantia de {guarantee} dias e até {discount}% de desconto.",
     ],
     callouts: [
       "Até {discount}% OFF",
@@ -160,28 +189,29 @@ const COPY: Record<string, LangTemplates> = {
   },
 
   es: {
+    // H1–H13: DKI | H14–H15: Localización (envío/escasez)
     h: [
-      "{product} Sitio Oficial",
-      "Hasta {discount}% de Descuento",
-      "2x1 con {discount}% OFF",
-      "Envío Gratis a {country}",
-      "Garantía de {guarantee} Días",
-      "{product} Por Solo {currency}{price}",
-      "Oferta Limitada {discount}% OFF",
-      "Reclama tu {discount}% de Dto.",
-      "Oferta Especial: {discount}% OFF",
-      "{product} {discount}% Descuento",
-      "Prueba {product} Sin Riesgo",
-      "Envío Gratis Desde {currency}{ship_min}",
-      "Precio Bundle Exclusivo",
-      "Asegura tu Pedido Ahora",
-      "Ordena Hoy, Ahorra {discount}%",
+      "{KeyWord:{product}} Sitio Oficial",
+      "{KeyWord:{product}} {discount}% Off",
+      "Bundle {KeyWord:{product}} {discount}%",
+      "{KeyWord:{product}} Sin Riesgo",
+      "{KeyWord:{product}} {guarantee} Días",
+      "Pide {KeyWord:{product}} Ya",
+      "{discount}% Off {KeyWord:{product}}",
+      "{KeyWord:{product}} Oferta Hoy",
+      "{KeyWord:{product}} {currency}{price}",
+      "Prueba {KeyWord:{product}} Hoy",
+      "{KeyWord:{product}} Envío Gratis",
+      "{KeyWord:{product}} Oferta Exclusiva",
+      "{KeyWord:{product}} Cerca de Ti",
+      "Envío a {LOCATION(City):Madrid}",
+      "¿En {LOCATION(City):Madrid}? Pide Ya",
     ],
     d: [
-      "Hasta {discount}% off en {product} hoy. Envío gratis en pedidos sobre {currency}{ship_min}. Garantía {guarantee} días.",
-      "Prueba {product} sin riesgo con garantía de {guarantee} días. Ordena desde {currency}{price}.",
-      "¡Tiempo limitado! {discount}% de descuento en bundles de {product}. Envío a {country}.",
-      "Compra {product} por {currency}{price}. Garantía {guarantee} días y hasta {discount}% de descuento hoy.",
+      "{KeyWord:{product}} {discount}% off hoy. Envío a {LOCATION(City):Madrid} y toda España. Garantía {guarantee} días.",
+      "Prueba {KeyWord:{product}} sin riesgo con garantía de {guarantee} días. Pide desde {currency}{price}.",
+      "¡Oferta limitada! {discount}% off {KeyWord:{product}}. Envío rápido a {LOCATION(City):Madrid} y más ciudades.",
+      "Compra {KeyWord:{product}} por {currency}{price}. Garantía {guarantee} días y hasta {discount}% de descuento.",
     ],
     callouts: [
       "Hasta {discount}% Descuento",
@@ -203,28 +233,29 @@ const COPY: Record<string, LangTemplates> = {
   },
 
   de: {
+    // H1–H13: DKI | H14–H15: Standort (Versand/lokale Knappheit)
     h: [
-      "{product} Offizieller Shop",
-      "Bis zu {discount}% Rabatt Heute",
-      "2 Kaufen, 1 mit {discount}% Off",
-      "Kostenloser Versand",
-      "{guarantee} Tage Geld-zurück",
-      "{product} Ab {currency}{price}",
-      "Zeitlich begrenzt {discount}% Off",
-      "{discount}% Rabatt Jetzt Sichern",
-      "Sonderangebot: {discount}% Rabatt",
-      "{product} {discount}% Sparen",
-      "{product} Risikofrei Testen",
-      "Gratis Versand ab {currency}{ship_min}",
-      "Exklusiver Bundle-Preis",
-      "Jetzt Sicher Bestellen",
-      "Heute Bestellen, {discount}% Sparen",
+      "{KeyWord:{product}} Offiziell",
+      "{KeyWord:{product}} {discount}% Rabatt",
+      "Bundle {KeyWord:{product}} {discount}%",
+      "{KeyWord:{product}} Risikofrei",
+      "{KeyWord:{product}} {guarantee} Tage",
+      "Jetzt {KeyWord:{product}} Bestellen",
+      "{discount}% Auf {KeyWord:{product}}",
+      "{KeyWord:{product}} Angebot Heute",
+      "{KeyWord:{product}} Ab {currency}{price}",
+      "{KeyWord:{product}} Testen",
+      "{KeyWord:{product}} Gratis Versand",
+      "{KeyWord:{product}} Exklusiv",
+      "{KeyWord:{product}} In Ihrer Nähe",
+      "{LOCATION(City):Berlin} Lieferung",
+      "Angebot In {LOCATION(City):Berlin}",
     ],
     d: [
-      "Bis zu {discount}% auf {product}. Gratis Versand ab {currency}{ship_min}. {guarantee} Tage Garantie.",
-      "{product} risikofrei testen – {guarantee} Tage Geld-zurück. Jetzt ab {currency}{price} bestellen.",
-      "Zeitlich begrenzt! {discount}% Rabatt auf {product} Bundles. Lieferung nach {country}.",
-      "{product} für {currency}{price}. {guarantee} Tage Garantie und bis zu {discount}% Rabatt heute.",
+      "{KeyWord:{product}} {discount}% Rabatt. Schnelle Lieferung nach {LOCATION(City):Berlin}. {guarantee} Tage Geld-zurück.",
+      "{KeyWord:{product}} risikofrei testen – {guarantee} Tage Garantie. Jetzt ab {currency}{price} bestellen.",
+      "{discount}% Rabatt auf {KeyWord:{product}} Bundles. Versand nach {LOCATION(City):Berlin} und ganz Deutschland.",
+      "{KeyWord:{product}} für {currency}{price}. {guarantee} Tage Garantie und {discount}% Rabatt heute sichern.",
     ],
     callouts: [
       "Bis {discount}% Rabatt",
@@ -246,28 +277,29 @@ const COPY: Record<string, LangTemplates> = {
   },
 
   da: {
+    // H1–H13: DKI | H14–H15: Placering (levering/lokal knaphed)
     h: [
-      "{product} Officielt Site",
-      "Op til {discount}% Rabat I Dag",
-      "60-Dages Pengene-Tilbage",
-      "Hurtig Levering til EU",
-      "Bestil Nu fra {currency}{price}",
-      "Tidsbegrænset {discount}% Tilbud",
-      "Spar {discount}% på {product}",
-      "Særtilbud: {discount}% Rabat",
-      "{product} - {discount}% Rabat",
-      "Prøv {product} Risikofrit",
-      "Gratis EU Levering",
-      "{guarantee}-Dages Tilfredshed",
-      "Eksklusiv Bundle Pris",
-      "Sikker & Diskret Kasse",
-      "Bestil I Dag, Spar {discount}%",
+      "{KeyWord:{product}} Officielt Site",
+      "{KeyWord:{product}} {discount}% Rabat",
+      "Bundle {KeyWord:{product}} {discount}%",
+      "{KeyWord:{product}} Risikofrit",
+      "{KeyWord:{product}} {guarantee} Dage",
+      "Bestil {KeyWord:{product}} Nu",
+      "{discount}% På {KeyWord:{product}}",
+      "{KeyWord:{product}} Tilbud I Dag",
+      "{KeyWord:{product}} Fra {currency}{price}",
+      "Prøv {KeyWord:{product}} I Dag",
+      "{KeyWord:{product}} Gratis Levering",
+      "{KeyWord:{product}} Eksklusivt",
+      "{KeyWord:{product}} Nær Dig",
+      "Levering til {LOCATION(City):Aarhus}",
+      "Tilbud i {LOCATION(City):Aarhus} Nu",
     ],
     d: [
-      "Op til {discount}% rabat på {product} i dag. {guarantee}-dages pengene-tilbage garanti. Hurtig EU levering.",
-      "Prøv {product} risikofrit med vores {guarantee}-dages tilfredshedsgaranti. Bestil fra {currency}{price}.",
-      "Tidsbegrænset tilbud! {discount}% rabat på {product} i dag. Hurtig og diskret levering til {country}.",
-      "Køb {product} for kun {currency}{price}. Nyd {guarantee}-dages garanti og op til {discount}% rabat i dag.",
+      "{KeyWord:{product}} {discount}% rabat nu. Hurtig levering til {LOCATION(City):København}. {guarantee}-dages garanti.",
+      "Prøv {KeyWord:{product}} risikofrit med {guarantee}-dages pengene-tilbage. Bestil fra {currency}{price}.",
+      "{discount}% rabat på {KeyWord:{product}} i dag. Levering til {LOCATION(City):København} og hele Danmark.",
+      "Køb {KeyWord:{product}} for {currency}{price}. {guarantee}-dages garanti og op til {discount}% rabat i dag.",
     ],
     callouts: [
       "Op til {discount}% Rabat",
@@ -287,9 +319,155 @@ const COPY: Record<string, LangTemplates> = {
     snippetHeader: "Types",
     snippetValues: ["{discount}% Rabat", "Gratis EU Levering", "{guarantee}-Dages Garanti", "Fra {currency}{price}"],
   },
+
+  fr: {
+    // H1–H13: DKI | H14–H15: Localisation (livraison/urgence locale)
+    h: [
+      "{KeyWord:{product}} Site Officiel",
+      "{KeyWord:{product}} {discount}% Remise",
+      "Pack {KeyWord:{product}} {discount}%",
+      "{KeyWord:{product}} Sans Risque",
+      "{KeyWord:{product}} {guarantee} Jours",
+      "Commander {KeyWord:{product}}",
+      "{discount}% Sur {KeyWord:{product}}",
+      "{KeyWord:{product}} Offre Du Jour",
+      "{KeyWord:{product}} Dès {currency}{price}",
+      "Testez {KeyWord:{product}}",
+      "{KeyWord:{product}} Livraison Offerte",
+      "{KeyWord:{product}} Offre Exclusive",
+      "{KeyWord:{product}} Près De Vous",
+      "Livraison à {LOCATION(City):Paris}",
+      "Offre à {LOCATION(City):Paris} Vite",
+    ],
+    d: [
+      "{KeyWord:{product}} {discount}% de remise. Livraison rapide à {LOCATION(City):Paris}. Garantie {guarantee} jours remboursé.",
+      "Testez {KeyWord:{product}} sans risque grâce à la garantie {guarantee} jours. Commandez dès {currency}{price}.",
+      "{discount}% de remise sur {KeyWord:{product}}. Livraison express à {LOCATION(City):Paris} et toute la France.",
+      "Achetez {KeyWord:{product}} pour {currency}{price}. Garantie {guarantee} jours et {discount}% de remise aujourd'hui.",
+    ],
+    callouts: [
+      "Jusqu'à {discount}% de Remise",
+      "Livraison Offerte Dès {currency}{ship_min}",
+      "Garantie {guarantee} Jours",
+      "Pack {discount}% OFF",
+      "Dès {currency}{price}",
+    ],
+    sitelinks: [
+      ["{discount}% de Remise",        "Pack avec {discount}% de remise.",            "Offres exclusives sur les packs."],
+      ["Livraison Gratuite",            "Livraison offerte dès {currency}{ship_min}.", "Livraison rapide en France."],
+      ["Garantie {guarantee} Jours",   "Testez {product} sans aucun risque.",         "Remboursement garanti {guarantee}j."],
+      ["Commander {product}",          "Dès {currency}{price} par unité.",            "Commandez sur le site officiel."],
+      ["Prix Pack",                    "Économisez plus avec nos packs.",             "Remise appliquée automatiquement."],
+      ["Offre Limitée",                "Ne ratez pas {discount}% de remise.",         "Commandez aujourd'hui et économisez."],
+    ],
+    snippetHeader: "Types",
+    snippetValues: ["{discount}% Remise", "Livraison Gratuite", "Garantie {guarantee} Jours", "Packs Dès {currency}{price}"],
+  },
+
+  fi: {
+    // H1–H13: DKI | H14–H15: Sijainti (toimitus/paikallisuus)
+    h: [
+      "{KeyWord:{product}} Virallinen",
+      "{KeyWord:{product}} {discount}% Alennus",
+      "Paketti {KeyWord:{product}} {discount}%",
+      "{KeyWord:{product}} Riskittä",
+      "{KeyWord:{product}} {guarantee} Pv",
+      "Tilaa {KeyWord:{product}} Nyt",
+      "{discount}% Alennus {KeyWord:{product}}",
+      "{KeyWord:{product}} Tarjous Nyt",
+      "{KeyWord:{product}} Vain {currency}{price}",
+      "Kokeile {KeyWord:{product}}",
+      "{KeyWord:{product}} Ilmainen Toimitus",
+      "{KeyWord:{product}} Erikoishinta",
+      "{KeyWord:{product}} Lähellä Sinua",
+      "Toimitus {LOCATION(City):Tampere}",
+      "Tarjous {LOCATION(City):Tampere} Nyt",
+    ],
+    d: [
+      "{KeyWord:{product}} {discount}% alennuksella. Toimitus {LOCATION(City):Helsinki} ja koko Suomeen. {guarantee} pv takuu.",
+      "Kokeile {KeyWord:{product}} täysin riskittä. {guarantee} pv rahat takaisin. Tilaa alkaen {currency}{price}.",
+      "{discount}% alennus {KeyWord:{product}} paketeista. Nopea toimitus {LOCATION(City):Helsinki} ja muualle Suomeen.",
+      "Osta {KeyWord:{product}} vain {currency}{price}. {guarantee} päivän takuu ja {discount}% alennus tänään.",
+    ],
+    callouts: [
+      "Jopa {discount}% Alennus",
+      "Ilmainen Toimitus Yli {currency}{ship_min}",
+      "{guarantee} Pv Takuu",
+      "Paketti {discount}% Off",
+      "Alkaen {currency}{price}",
+    ],
+    sitelinks: [
+      ["{discount}% Alennus Nyt",      "{discount}% alennus {product} paketeista.",   "Parhaat pakettitarjoukset."],
+      ["Ilmainen Toimitus",             "Ilmainen toimitus yli {currency}{ship_min}.", "Nopea toimitus Suomeen."],
+      ["{guarantee} Pv Takuu",          "Kokeile {product} täysin riskittä.",          "Rahat takaisin {guarantee} pv."],
+      ["Tilaa {product} Nyt",           "Tuotteet alkaen {currency}{price}.",          "Tilaa virallisesta kaupasta."],
+      ["Pakettihinta",                  "Säästä enemmän paketeilla.",                  "Alennus lisätään automaattisesti."],
+      ["Rajoitettu Tarjous",            "Älä missaa {discount}% alennusta.",           "Tilaa tänään ja säästä heti."],
+    ],
+    snippetHeader: "Types",
+    snippetValues: ["{discount}% Alennus", "Ilmainen Toimitus", "{guarantee} Pv Takuu", "Alkaen {currency}{price}"],
+  },
+
+  ro: {
+    // H1–H13: DKI | H14–H15: Localizare (livrare/urgență locală)
+    h: [
+      "{KeyWord:{product}} Site Oficial",
+      "{KeyWord:{product}} {discount}% Reducere",
+      "Pachet {KeyWord:{product}} {discount}%",
+      "{KeyWord:{product}} Fără Risc",
+      "{KeyWord:{product}} {guarantee} Zile",
+      "Comandă {KeyWord:{product}} Acum",
+      "{discount}% Off {KeyWord:{product}}",
+      "{KeyWord:{product}} Ofertă Azi",
+      "{KeyWord:{product}} De La {currency}{price}",
+      "Testează {KeyWord:{product}}",
+      "{KeyWord:{product}} Transport Gratuit",
+      "{KeyWord:{product}} Exclusiv",
+      "{KeyWord:{product}} Lângă Tine",
+      "Livrare în {LOCATION(City):Cluj}",
+      "Ofertă în {LOCATION(City):Cluj} Acum",
+    ],
+    d: [
+      "{KeyWord:{product}} {discount}% reducere. Livrare rapidă în {LOCATION(City):București}. Garanție {guarantee} zile.",
+      "Testează {KeyWord:{product}} fără risc cu garanția de {guarantee} zile. Comandă de la {currency}{price}.",
+      "{discount}% reducere la {KeyWord:{product}}. Livrare rapidă în {LOCATION(City):București} și toată România.",
+      "Cumpără {KeyWord:{product}} pentru {currency}{price}. Garanție {guarantee} zile și {discount}% reducere azi.",
+    ],
+    callouts: [
+      "Până la {discount}% Reducere",
+      "Transport Gratuit Peste {currency}{ship_min}",
+      "Garanție {guarantee} Zile",
+      "Pachet {discount}% OFF",
+      "De La {currency}{price}",
+    ],
+    sitelinks: [
+      ["{discount}% Reducere Acum",    "Pachet cu {discount}% reducere astăzi.",      "Oferte exclusive la pachete."],
+      ["Transport Gratuit",             "Gratuit la comenzi peste {currency}{ship_min}.", "Livrare rapidă în România."],
+      ["Garanție {guarantee} Zile",    "Testează {product} complet fără risc.",        "Ramburs garantat {guarantee} zile."],
+      ["Comandă {product} Acum",       "Produse de la {currency}{price}.",             "Comandă de pe site-ul oficial."],
+      ["Preț Pachet",                  "Economisești mai mult cu pachete.",            "Reducere aplicată automat."],
+      ["Ofertă Limitată",              "Nu rata {discount}% reducere.",                "Comandă azi și economisești."],
+    ],
+    snippetHeader: "Types",
+    snippetValues: ["{discount}% Reducere", "Transport Gratuit", "Garanție {guarantee} Zile", "De La {currency}{price}"],
+  },
 };
 
 // ─── GENERATOR ─────────────────────────────────────────────────────────────
+
+// Returns true if the template uses a variable that is empty in ctx
+function usesEmptyVar(template: string, ctx: CopyContext): boolean {
+  const checks: [string, string][] = [
+    ["{guarantee}", ctx.guarantee],
+    ["{price}",     ctx.price],
+    ["{discount}",  ctx.discount],
+    ["{ship_min}",  ctx.ship_min],
+    ["{currency}",  ctx.currency],
+  ];
+  return checks.some(([placeholder, value]) =>
+    template.includes(placeholder) && (!value || value === "0")
+  );
+}
 
 export function generateAllCopy(ctx: CopyContext, lang: string, finalUrl: string): GeneratedCopy {
   const tmpl = COPY[lang] ?? COPY["en"];
@@ -297,19 +475,39 @@ export function generateAllCopy(ctx: CopyContext, lang: string, finalUrl: string
   const campaign = `Search - ${ctx.product} - ${ctx.country}`;
   const adGroup  = `${ctx.product} - Offer`;
   const path1    = trunc(ctx.product, 15);
-  const path2    = trunc(`${ctx.discount}-Off`, 15);
+  const path2    = ctx.discount ? trunc(`${ctx.discount}-Off`, 15) : trunc(ctx.product, 15);
 
-  const headlines    = tmpl.h.slice(0, 15).map(t => renderTrunc(t, ctx, 30));
-  const descriptions = tmpl.d.slice(0, 4).map(t => renderTrunc(t, ctx, 90));
-  const callouts     = tmpl.callouts.map(t => renderTrunc(t, ctx, 25));
-  const sitelinks: SitelinkEntry[] = tmpl.sitelinks.map(([txt, d1, d2]) => ({
-    text: renderTrunc(txt, ctx, 25),
-    url:  finalUrl,
-    d1:   renderTrunc(d1, ctx, 35),
-    d2:   renderTrunc(d2, ctx, 35),
-  }));
+  // Filter out templates that reference empty/missing variables
+  const validH = tmpl.h.filter(t => !usesEmptyVar(t, ctx));
+  const validD = tmpl.d.filter(t => !usesEmptyVar(t, ctx));
+
+  const headlines    = validH.slice(0, 15).map(t => renderTrunc(t, ctx, 30));
+  const descriptions = validD.slice(0, 4).map(t => renderTrunc(t, ctx, 90));
+  const callouts     = tmpl.callouts.filter(t => !usesEmptyVar(t, ctx)).map(t => renderTrunc(t, ctx, 25));
+
+  // Google rejects identical URLs across sitelinks — generate small variations
+  const base = finalUrl.replace(/\/+$/, "");
+  const urlVariants = [
+    base + "/",
+    base + "//",
+    base + "/?",
+    base + "/#",
+    base + "/?ref=1",
+    base + "/?src=2",
+    base + "/?v=3",
+  ];
+  const sitelinks: SitelinkEntry[] = tmpl.sitelinks
+    .filter(([txt, d1, d2]) => !usesEmptyVar(txt + d1 + d2, ctx))
+    .map(([txt, d1, d2], i) => ({
+      text: renderTrunc(txt, ctx, 25),
+      url:  urlVariants[i] ?? finalUrl,
+      d1:   renderTrunc(d1, ctx, 35),
+      d2:   renderTrunc(d2, ctx, 35),
+    }));
   const snippetHeader = tmpl.snippetHeader;
-  const snippetValues = tmpl.snippetValues.map(v => renderTrunc(v, ctx, 25));
+  const snippetValues = tmpl.snippetValues
+    .filter(v => !usesEmptyVar(v, ctx))
+    .map(v => renderTrunc(v, ctx, 25));
 
   return {
     campaign, adGroup, path1, path2,
@@ -334,13 +532,22 @@ export interface ValidationResult {
 
 export function validateCopy(copy: GeneratedCopy): ValidationResult {
   const errors: string[] = [];
-  copy.headlines.forEach((h, i) => { if (h.length > 30) errors.push(`H${i+1} excede 30 chars [${h.length}]`); });
-  copy.descriptions.forEach((d, i) => { if (d.length > 90) errors.push(`D${i+1} excede 90 chars [${d.length}]`); });
-  copy.callouts.forEach((c, i) => { if (c.length > 25) errors.push(`Callout ${i+1} excede 25 chars [${c.length}]`); });
+  // Use effectiveLength: Google counts fallback text, not macro syntax
+  copy.headlines.forEach((h, i) => {
+    const len = effectiveLength(h);
+    if (len > 30) errors.push(`H${i+1} excede 30 chars [${len}]`);
+  });
+  copy.descriptions.forEach((d, i) => {
+    const len = effectiveLength(d);
+    if (len > 90) errors.push(`D${i+1} excede 90 chars [${len}]`);
+  });
+  copy.callouts.forEach((c, i) => {
+    if (effectiveLength(c) > 25) errors.push(`Callout ${i+1} excede 25 chars`);
+  });
   copy.sitelinks.forEach((s, i) => {
-    if (s.text.length > 25) errors.push(`Sitelink ${i+1} text excede 25 chars`);
-    if (s.d1.length > 35)   errors.push(`Sitelink ${i+1} D1 excede 35 chars`);
-    if (s.d2.length > 35)   errors.push(`Sitelink ${i+1} D2 excede 35 chars`);
+    if (effectiveLength(s.text) > 25) errors.push(`Sitelink ${i+1} text excede 25 chars`);
+    if (effectiveLength(s.d1)   > 35) errors.push(`Sitelink ${i+1} D1 excede 35 chars`);
+    if (effectiveLength(s.d2)   > 35) errors.push(`Sitelink ${i+1} D2 excede 35 chars`);
   });
   return { valid: errors.length === 0, errors };
 }
