@@ -33,7 +33,7 @@ async function extractFromText(text: string): Promise<Record<string, string>> {
       "X-Title": "Upadsfast Web App",
     },
     body: JSON.stringify({
-      model: "minimax/minimax-01-2.5",
+      model: "minimax/minimax-m2.5",
       messages: [
         {
           role: "user",
@@ -51,7 +51,7 @@ async function extractFromText(text: string): Promise<Record<string, string>> {
 
   const data = await res.json();
   const raw = data.choices?.[0]?.message?.content?.trim();
-  
+
   if (!raw) throw new Error("No response content from OpenRouter");
 
   const jsonMatch = raw.match(/\{[\s\S]*\}/);
