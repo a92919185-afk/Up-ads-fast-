@@ -127,23 +127,26 @@ const COPY: Record<string, LangTemplates> = {
       "Buy {KeyWord:{product}} for {currency}{price}. Enjoy a {guarantee}-day guarantee and {discount}% off today.",
     ],
     callouts: [
-      "Up To {discount}% Off",
-      "Free Shipping Over {currency}{ship_min}",
-      "{guarantee}-Day Guarantee",
-      "Buy 1 Get 1 {discount}% Off",
-      "Starting At {currency}{price}",
+      "Save Up To {discount}% Off Today",
+      "Free Shipping On All Orders Now",
+      "Full {guarantee}-Day Money-Back Guarantee",
+      "Buy 1 Get 1 {discount}% Off Bundles",
+      "Shop From Just {currency}{price} Today",
     ],
     sitelinks: [
-      ["Claim {discount}% Off", "Buy 1 get 1 {discount}% off today.", "Exclusive bundle deals."],
-      ["Free {country} Shipping", "Free shipping on orders over {currency}{ship_min}.", "Fast delivery across the {country}."],
-      ["{guarantee}-Day Guarantee", "Try {product} completely risk-free.", "100% money-back guarantee."],
-      ["Order {product} Now", "Devices starting at just {currency}{price}.", "Order from the official site."],
-      ["Bundle Pricing", "Save big with our bundles.", "Special discount applied."],
-      ["Limited Time Sale", "Don't miss out on {discount}% off.", "Order today to save instantly."],
-      ["Official {product} Store", "Buy from the verified official store.", "Secure checkout guaranteed."],
+      ["Claim {discount}% Off Today",    "Buy 1 get 1 {discount}% off — limited time.",  "Access exclusive bundle discounts now."],
+      ["Free {country} Shipping Today",  "Free shipping on orders over {currency}{ship_min}.", "Fast delivery across the entire {country}."],
+      ["{guarantee}-Day Risk-Free Trial","Try {product} completely risk-free today.",   "Full {guarantee}-day money-back guarantee."],
+      ["Get Your {product} Today",       "Order {product} from just {currency}{price}.", "Order directly from the official site."],
+      ["Best Bundle Deals Today",        "Save more with our exclusive bundles now.",    "Special discount applied at checkout."],
+      ["Flash Sale Ending Tonight",      "Don't miss out on {discount}% off today.",     "Order today and save instantly online."],
+      ["Visit The Official Store",       "Trusted official store — shop securely now.",  "Verified secure checkout guaranteed."],
     ],
     snippetHeader: "Types",
-    snippetValues: ["{discount}% Discount", "Free {country} Shipping", "{guarantee}-Day Guarantee", "Bundles From {currency}{price}"],
+    snippetValues: [
+      "Official Product", "Risk-Free Trial", "Fast Worldwide Delivery", "Secure Checkout",
+      "{discount}% Discount", "{guarantee}-Day Guarantee", "Bundles From {currency}{price}",
+    ],
   },
 
   pt: {
@@ -172,23 +175,26 @@ const COPY: Record<string, LangTemplates> = {
       "Compre {KeyWord:{product}} por {currency}{price}. Garantia de {guarantee} dias e até {discount}% de desconto.",
     ],
     callouts: [
-      "Até {discount}% OFF",
-      "Frete Grátis Acima {currency}{ship_min}",
-      "Garantia {guarantee} Dias",
-      "Kit com {discount}% Desconto",
-      "A Partir de {currency}{price}",
+      "Economize Até {discount}% OFF Agora",
+      "Frete Grátis Acima de {currency}{ship_min}",
+      "Garantia Total de {guarantee} Dias",
+      "Kit com {discount}% de Desconto Hoje",
+      "Produtos A Partir de {currency}{price}",
     ],
     sitelinks: [
-      ["Desconto de {discount}%", "Kit com {discount}% de desconto hoje.", "Ofertas exclusivas de kit."],
-      ["Frete Grátis", "Frete grátis acima de {currency}{ship_min}.", "Entrega rápida no Brasil."],
-      ["Garantia {guarantee} Dias", "Experimente sem risco algum.", "Devolução em {guarantee} dias."],
-      ["Comprar {product}", "A partir de {currency}{price} por unidade.", "Compre no site oficial."],
-      ["Preço de Kit", "Economize mais com nossos kits.", "Desconto aplicado automaticamente."],
-      ["Oferta Tempo Limitado", "Não perca {discount}% de desconto.", "Peça hoje e economize."],
-      ["Site Oficial {product}", "Compre no site oficial verificado.", "Pagamento 100% seguro."],
+      ["Garanta {discount}% de Desconto",   "Kit com {discount}% de desconto hoje.",       "Acesse ofertas exclusivas de kit agora."],
+      ["Frete Grátis Para Você",             "Frete grátis acima de {currency}{ship_min}.", "Entrega rápida para todo o Brasil."],
+      ["Garantia {guarantee} Dias Grátis",   "Experimente sem risco absolutamente algum.",  "Devolução garantida em {guarantee} dias."],
+      ["Peça {product} Hoje Mesmo",          "A partir de {currency}{price} por unidade.",  "Compre direto no site oficial agora."],
+      ["Melhores Preços em Kits",            "Economize mais com nossos kits exclusivos.",  "Desconto aplicado automaticamente aqui."],
+      ["Oferta Por Tempo Limitado",          "Não perca {discount}% de desconto hoje.",     "Peça hoje e economize na hora."],
+      ["Compre No Site Oficial Agora",       "Site verificado com pagamento 100% seguro.",  "Checkout seguro e confiável garantido."],
     ],
     snippetHeader: "Tipos",
-    snippetValues: ["{discount}% de Desconto", "Frete Grátis", "Garantia {guarantee} Dias", "Kits a Partir {currency}{price}"],
+    snippetValues: [
+      "Produto Oficial", "Sem Risco", "Entrega Rápida", "Pagamento Seguro",
+      "{discount}% de Desconto", "Garantia {guarantee} Dias", "Kits a Partir {currency}{price}",
+    ],
   },
 
   es: {
@@ -217,23 +223,26 @@ const COPY: Record<string, LangTemplates> = {
       "Compra {KeyWord:{product}} por {currency}{price}. Garantía {guarantee} días y hasta {discount}% de descuento.",
     ],
     callouts: [
-      "Hasta {discount}% Descuento",
+      "Hasta {discount}% Descuento Hoy",
       "Envío Gratis Desde {currency}{ship_min}",
-      "Garantía {guarantee} Días",
-      "Bundle 2x1 {discount}% OFF",
-      "Desde Solo {currency}{price}",
+      "Garantía Completa {guarantee} Días",
+      "Bundle 2x1 Con {discount}% OFF",
+      "Precios Desde Solo {currency}{price}",
     ],
     sitelinks: [
-      ["Descuento {discount}%", "Bundle con {discount}% off hoy.", "Ofertas exclusivas de bundle."],
-      ["Envío Gratis", "Envío gratis en pedidos sobre {currency}{ship_min}.", "Entrega rápida a {country}."],
-      ["Garantía {guarantee} Días", "Prueba {product} completamente gratis.", "Reembolso 100% garantizado."],
-      ["Ordenar {product} Ya", "Dispositivos desde solo {currency}{price}.", "Compra en el sitio oficial."],
-      ["Precios Bundle", "Ahorra más con nuestros bundles.", "Descuento aplicado al instante."],
-      ["Oferta Tiempo Limitado", "No pierdas el {discount}% off.", "Ordena hoy y ahorra al instante."],
-      ["Tienda Oficial {product}", "Compra en la tienda oficial verificada.", "Pago 100% seguro garantizado."],
+      ["Obtén {discount}% de Descuento",  "Bundle con {discount}% off — solo hoy.",      "Accede a ofertas exclusivas de bundle."],
+      ["Envío Gratis Hoy Mismo",           "Envío gratis en pedidos sobre {currency}{ship_min}.", "Entrega rápida a {country} garantizada."],
+      ["Garantía {guarantee} Días Total",  "Prueba {product} completamente sin riesgo.",  "Reembolso 100% garantizado siempre."],
+      ["Pide Tu {product} Hoy",           "Desde solo {currency}{price} por unidad.",    "Compra directo en el sitio oficial."],
+      ["Los Mejores Packs Hoy",            "Ahorra más con nuestros bundles exclusivos.", "Descuento aplicado automáticamente aquí."],
+      ["Oferta Flash Por Tiempo",          "No pierdas el {discount}% off de hoy.",       "Ordena hoy y ahorra al instante ya."],
+      ["Visita La Tienda Oficial",         "Tienda oficial verificada — compra segura.",   "Pago 100% seguro garantizado siempre."],
     ],
     snippetHeader: "Types",
-    snippetValues: ["{discount}% Descuento", "Envío Gratis", "Garantía {guarantee} Días", "Bundles Desde {currency}{price}"],
+    snippetValues: [
+      "Producto Oficial", "Sin Riesgo", "Entrega Rápida", "Pago Seguro",
+      "{discount}% Descuento", "Garantía {guarantee} Días", "Bundles Desde {currency}{price}",
+    ],
   },
 
   de: {
@@ -262,23 +271,26 @@ const COPY: Record<string, LangTemplates> = {
       "{KeyWord:{product}} für {currency}{price}. {guarantee} Tage Garantie und {discount}% Rabatt heute sichern.",
     ],
     callouts: [
-      "Bis {discount}% Rabatt",
-      "Gratis Versand ab {currency}{ship_min}",
-      "{guarantee} Tage Garantie",
-      "Bundle {discount}% Rabatt",
-      "Ab {currency}{price}",
+      "Bis Zu {discount}% Rabatt Jetzt",
+      "Gratis Versand Ab {currency}{ship_min}",
+      "{guarantee} Tage Geld-Zurück-Garantie",
+      "Bundle Deal Mit {discount}% Rabatt",
+      "Angebote Ab Nur {currency}{price}",
     ],
     sitelinks: [
-      ["{discount}% Rabatt Sichern", "Bundle mit {discount}% Rabatt heute.", "Exklusive Bundle-Angebote."],
-      ["Kostenloser Versand", "Gratis Versand ab {currency}{ship_min}.", "Schnelle Lieferung nach {country}."],
-      ["{guarantee}-Tage-Garantie", "{product} komplett risikofrei testen.", "100% Geld-zurück-Garantie."],
-      ["{product} Jetzt Bestellen", "Geräte ab {currency}{price}.", "Im offiziellen Shop kaufen."],
-      ["Bundle-Preise", "Mit Bundles mehr sparen.", "Rabatt automatisch abgezogen."],
-      ["Zeitlich Begrenzt", "{discount}% Rabatt nicht verpassen.", "Heute bestellen und sparen."],
-      ["Offizieller {product} Shop", "Im verifizierten offiziellen Shop kaufen.", "100% sicherer Checkout."],
+      ["Jetzt {discount}% Rabatt Sichern",  "Bundle mit {discount}% Rabatt — nur heute.",    "Exklusive Bundle-Angebote entdecken."],
+      ["Kostenloser Versand Heute",          "Gratis Versand ab {currency}{ship_min}.",        "Schnelle Lieferung nach ganz {country}."],
+      ["{guarantee} Tage Risikofrei Testen", "{product} komplett risikofrei ausprobieren.",    "Volle {guarantee}-Tage Geld-zurück-Garantie."],
+      ["{product} Jetzt Bestellen",          "Produkte ab nur {currency}{price} bestellen.",   "Direkt im offiziellen Shop kaufen."],
+      ["Beste Bundle-Angebote Heute",        "Mit Bundles noch mehr Geld sparen jetzt.",       "Rabatt wird automatisch abgezogen."],
+      ["Flash-Sale Nur Heute",               "{discount}% Rabatt nicht verpassen jetzt.",      "Heute bestellen und sofort sparen."],
+      ["Offiziellen Shop Besuchen",          "Verifizierter offizieller Shop — sicher kaufen.", "100% sicherer und geprüfter Checkout."],
     ],
     snippetHeader: "Types",
-    snippetValues: ["{discount}% Rabatt", "Kostenloser Versand", "{guarantee} Tage Garantie", "Bundles ab {currency}{price}"],
+    snippetValues: [
+      "Offizielles Produkt", "Risikofrei Testen", "Schnelle Lieferung", "Sicherer Kauf",
+      "{discount}% Rabatt", "{guarantee} Tage Garantie", "Bundles ab {currency}{price}",
+    ],
   },
 
   da: {
@@ -307,23 +319,26 @@ const COPY: Record<string, LangTemplates> = {
       "Køb {KeyWord:{product}} for {currency}{price}. {guarantee}-dages garanti og op til {discount}% rabat i dag.",
     ],
     callouts: [
-      "Op til {discount}% Rabat",
-      "Gratis EU Levering",
-      "{guarantee}-Dages Garanti",
-      "Sikker & Diskret Kasse",
-      "Fra {currency}{price}",
+      "Op Til {discount}% Rabat I Dag",
+      "Gratis EU Levering Inkluderet",
+      "Fuld {guarantee}-Dages Garanti Gives",
+      "Sikker Og Diskret Kasse Altid",
+      "Prisgaranti På Alle Vores Varer",
     ],
     sitelinks: [
-      ["Spar {discount}% I Dag", "Op til {discount}% rabat på {product}.", "Eksklusivt bundle tilbud."],
-      ["Gratis EU Levering", "Hurtig levering til hele EU.", "Diskret og sikker forsendelse."],
-      ["{guarantee}-Dages Garanti", "Prøv {product} helt risikofrit.", "Fuld pengene-tilbage garanti."],
-      ["Bestil {product} Nu", "Kapsler fra kun {currency}{price}.", "Bestil fra det officielle site."],
-      ["Bundle Pris", "Spar mere med vores bundles.", "Rabat aktiveres automatisk."],
-      ["Tidsbegrænset Tilbud", "Gå ikke glip af {discount}% rabat.", "Bestil i dag og spar straks."],
-      ["Officielt {product} Site", "Køb fra det verificerede officielle site.", "100% sikker betaling garanteret."],
+      ["Spar Op Til {discount}% I Dag",   "Op til {discount}% rabat på {product} nu.",    "Eksklusive bundle-tilbud venter dig her."],
+      ["Gratis EU Levering I Dag",         "Hurtig levering til hele EU nu.",              "Diskret og sikker forsendelse garanteret."],
+      ["{guarantee}-Dages Fuld Garanti",   "Prøv {product} helt risikofrit i dag.",        "Fuld pengene-tilbage garanti gives altid."],
+      ["Bestil {product} I Dag Nu",        "Produkter fra kun {currency}{price} stykket.", "Bestil direkte fra det officielle site."],
+      ["Bedste Bundle Tilbud Nu",          "Spar mere med vores eksklusive bundles nu.",   "Rabat aktiveres automatisk ved kassen."],
+      ["Flash Udsalg Ender Snart",         "Gå ikke glip af {discount}% rabat i dag.",     "Bestil i dag og spar straks online."],
+      ["Officiel {product} Butik Nu",      "Køb fra det verificerede officielle site nu.", "100% sikker betaling garanteret altid."],
     ],
     snippetHeader: "Types",
-    snippetValues: ["{discount}% Rabat", "Gratis EU Levering", "{guarantee}-Dages Garanti", "Fra {currency}{price}"],
+    snippetValues: [
+      "Officielt Produkt", "Risikofrit Køb", "Hurtig Levering", "Sikker Betaling",
+      "{discount}% Rabat", "{guarantee}-Dages Garanti", "Fra {currency}{price}",
+    ],
   },
 
   fr: {
@@ -352,23 +367,26 @@ const COPY: Record<string, LangTemplates> = {
       "Achetez {KeyWord:{product}} pour {currency}{price}. Garantie {guarantee} jours et {discount}% de remise aujourd'hui.",
     ],
     callouts: [
-      "Jusqu'à {discount}% de Remise",
+      "Jusqu'à {discount}% de Remise Dès",
       "Livraison Offerte Dès {currency}{ship_min}",
-      "Garantie {guarantee} Jours",
-      "Pack {discount}% OFF",
-      "Dès {currency}{price}",
+      "Garantie Totale {guarantee} Jours Remboursé",
+      "Pack Exclusif {discount}% OFF Aujourd'hui",
+      "Prix Dès {currency}{price} Seulement",
     ],
     sitelinks: [
-      ["{discount}% de Remise", "Pack avec {discount}% de remise.", "Offres exclusives sur les packs."],
-      ["Livraison Gratuite", "Livraison offerte dès {currency}{ship_min}.", "Livraison rapide en France."],
-      ["Garantie {guarantee} Jours", "Testez {product} sans aucun risque.", "Remboursement garanti {guarantee}j."],
-      ["Commander {product}", "Dès {currency}{price} par unité.", "Commandez sur le site officiel."],
-      ["Prix Pack", "Économisez plus avec nos packs.", "Remise appliquée automatiquement."],
-      ["Offre Limitée", "Ne ratez pas {discount}% de remise.", "Commandez aujourd'hui et économisez."],
-      ["Site Officiel {product}", "Achetez sur le site officiel vérifié.", "Paiement 100% sécurisé garanti."],
+      ["Profitez De {discount}% De Remise", "Pack avec {discount}% de remise — ce soir.",  "Offres exclusives sur tous les packs."],
+      ["Livraison Offerte Partout",          "Livraison offerte dès {currency}{ship_min}.", "Livraison rapide partout en France."],
+      ["Garantie {guarantee} Jours Totale", "Testez {product} sans aucun risque du tout.", "Remboursement garanti sous {guarantee} jours."],
+      ["Commandez {product} Vite",          "Dès {currency}{price} par unité seulement.",  "Commandez sur le site officiel certifié."],
+      ["Meilleurs Offres En Pack Ici",      "Économisez plus avec nos packs exclusifs.",   "Remise appliquée automatiquement au panier."],
+      ["Vente Flash Exclusive Du Jour",     "Ne ratez pas {discount}% de remise auj'hui.", "Commandez aujourd'hui et économisez vite."],
+      ["Site Officiel Certifié {product}",  "Achetez sur le site officiel certifié ici.",  "Paiement 100% sécurisé et garanti."],
     ],
     snippetHeader: "Types",
-    snippetValues: ["{discount}% Remise", "Livraison Gratuite", "Garantie {guarantee} Jours", "Packs Dès {currency}{price}"],
+    snippetValues: [
+      "Produit Officiel", "Sans Risque", "Livraison Rapide", "Paiement Sécurisé",
+      "{discount}% Remise", "Garantie {guarantee} Jours", "Packs Dès {currency}{price}",
+    ],
   },
 
   fi: {
@@ -397,23 +415,26 @@ const COPY: Record<string, LangTemplates> = {
       "Osta {KeyWord:{product}} vain {currency}{price}. {guarantee} päivän takuu ja {discount}% alennus tänään.",
     ],
     callouts: [
-      "Jopa {discount}% Alennus",
+      "Jopa {discount}% Alennus Nyt Heti",
       "Ilmainen Toimitus Yli {currency}{ship_min}",
-      "{guarantee} Pv Takuu",
-      "Paketti {discount}% Off",
-      "Alkaen {currency}{price}",
+      "{guarantee} Päivän Rahat Takaisin",
+      "Paketti {discount}% Alennuksella Nyt",
+      "Tuotteet Alkaen {currency}{price} Vain",
     ],
     sitelinks: [
-      ["{discount}% Alennus Nyt", "{discount}% alennus {product} paketeista.", "Parhaat pakettitarjoukset."],
-      ["Ilmainen Toimitus", "Ilmainen toimitus yli {currency}{ship_min}.", "Nopea toimitus Suomeen."],
-      ["{guarantee} Pv Takuu", "Kokeile {product} täysin riskittä.", "Rahat takaisin {guarantee} pv."],
-      ["Tilaa {product} Nyt", "Tuotteet alkaen {currency}{price}.", "Tilaa virallisesta kaupasta."],
-      ["Pakettihinta", "Säästä enemmän paketeilla.", "Alennus lisätään automaattisesti."],
-      ["Rajoitettu Tarjous", "Älä missaa {discount}% alennusta.", "Tilaa tänään ja säästä heti."],
-      ["Virallinen {product} Kauppa", "Osta virallisesta vahvistetusta kaupasta.", "100% turvallinen maksu."],
+      ["Säästä {discount}% Heti Tänään",   "{discount}% alennus {product} paketeista nyt.", "Parhaat pakettihinnat löydät täältä."],
+      ["Ilmainen Toimitus Nyt",             "Ilmainen toimitus yli {currency}{ship_min}.",   "Nopea toimitus kaikkialle Suomeen."],
+      ["{guarantee} Päivän Takuu Nyt",      "Kokeile {product} täysin riskittä tänään.",     "Rahat takaisin {guarantee} päivässä."],
+      ["Tilaa {product} Nyt Heti",          "Tuotteet alkaen {currency}{price} vain.",        "Tilaa suoraan virallisesta kaupasta."],
+      ["Parhaat Pakettitarjoukset",         "Säästä enemmän eksklusiivisilla paketeilla.",    "Alennus lisätään automaattisesti heti."],
+      ["Rajoitettu Tarjous Nyt",            "Älä missaa {discount}% alennusta tänään.",       "Tilaa tänään ja säästä heti verkossa."],
+      ["Virallinen {product} Kauppa",       "Osta vahvistetusta virallisesta kaupasta nyt.", "100% turvallinen maksu taattu aina."],
     ],
     snippetHeader: "Types",
-    snippetValues: ["{discount}% Alennus", "Ilmainen Toimitus", "{guarantee} Pv Takuu", "Alkaen {currency}{price}"],
+    snippetValues: [
+      "Virallinen Tuote", "Riskitön Kokeilu", "Nopea Toimitus", "Turvallinen Maksu",
+      "{discount}% Alennus", "{guarantee} Pv Takuu", "Alkaen {currency}{price}",
+    ],
   },
 
   ro: {
@@ -442,23 +463,26 @@ const COPY: Record<string, LangTemplates> = {
       "Cumpără {KeyWord:{product}} pentru {currency}{price}. Garanție {guarantee} zile și {discount}% reducere azi.",
     ],
     callouts: [
-      "Până la {discount}% Reducere",
+      "Până La {discount}% Reducere Azi",
       "Transport Gratuit Peste {currency}{ship_min}",
-      "Garanție {guarantee} Zile",
-      "Pachet {discount}% OFF",
-      "De La {currency}{price}",
+      "Garanție Completă {guarantee} Zile",
+      "Pachet Reducere {discount}% OFF Acum",
+      "Prețuri De La {currency}{price} Azi",
     ],
     sitelinks: [
-      ["{discount}% Reducere Acum", "Pachet cu {discount}% reducere astăzi.", "Oferte exclusive la pachete."],
-      ["Transport Gratuit", "Gratuit la comenzi peste {currency}{ship_min}.", "Livrare rapidă în România."],
-      ["Garanție {guarantee} Zile", "Testează {product} complet fără risc.", "Ramburs garantat {guarantee} zile."],
-      ["Comandă {product} Acum", "Produse de la {currency}{price}.", "Comandă de pe site-ul oficial."],
-      ["Preț Pachet", "Economisești mai mult cu pachete.", "Reducere aplicată automat."],
-      ["Ofertă Limitată", "Nu rata {discount}% reducere.", "Comandă azi și economisești."],
-      ["Site Oficial {product}", "Cumpără de pe site-ul oficial verificat.", "Plată 100% securizată garantată."],
+      ["Reducere {discount}% Aplicată Azi",  "Pachet cu {discount}% reducere — azi.",       "Oferte exclusive la pachete acum."],
+      ["Transport Gratuit Acum",              "Gratuit la comenzi peste {currency}{ship_min}.", "Livrare rapidă în toată România."],
+      ["Garanție Completă {guarantee} Zile",  "Testează {product} complet fără niciun risc.", "Ramburs garantat în {guarantee} zile."],
+      ["Comandă {product} Acum Azi",          "Produse de la {currency}{price} pe unitate.",  "Comandă direct de pe site-ul oficial."],
+      ["Cele Mai Bune Pachete Azi",           "Economisești mai mult cu pachete exclusive.",  "Reducere aplicată automat la coș."],
+      ["Ofertă Limitată De Azi",              "Nu rata {discount}% reducere disponibilă.",    "Comandă azi și economisești instant."],
+      ["Site Oficial Verificat Acum",         "Cumpără de pe site-ul oficial verificat.",     "Plată 100% securizată garantată mereu."],
     ],
     snippetHeader: "Types",
-    snippetValues: ["{discount}% Reducere", "Transport Gratuit", "Garanție {guarantee} Zile", "De La {currency}{price}"],
+    snippetValues: [
+      "Produs Oficial", "Fără Risc", "Livrare Rapidă", "Plată Securizată",
+      "{discount}% Reducere", "Garanție {guarantee} Zile", "De La {currency}{price}",
+    ],
   },
 
   bg: {
@@ -487,23 +511,26 @@ const COPY: Record<string, LangTemplates> = {
       "Купете {KeyWord:{product}} за {currency}{price}. Гаранция {guarantee} дни и {discount}% отстъпка днес.",
     ],
     callouts: [
-      "До {discount}% Отстъпка",
-      "Безплатна Доставка",
-      "Гаранция {guarantee} Дни",
-      "Пакет {discount}% Отстъпка",
-      "От {currency}{price}",
+      "До {discount}% Отстъпка Сега",
+      "Безплатна Доставка Навсякъде",
+      "Гаранция Пълна {guarantee} Дни",
+      "Пакет С {discount}% Отстъпка Днес",
+      "Продукти От {currency}{price} Сега",
     ],
     sitelinks: [
-      ["{discount}% Отстъпка Сега", "Пакет с {discount}% отстъпка днес.", "Ексклузивни пакетни оферти."],
-      ["Безплатна Доставка", "Безплатна доставка над {currency}{ship_min}.", "Бърза доставка в България."],
-      ["Гаранция {guarantee} Дни", "Изпробвайте без никакъв риск.", "Връщане за {guarantee} дни."],
-      ["Поръчай Сега", "Продукти от {currency}{price}.", "Поръчайте от официалния сайт."],
-      ["Пакетна Цена", "Спестете повече с пакети.", "Отстъпката се прилага автоматично."],
-      ["Ограничена Оферта", "Не пропускайте {discount}% отстъпка.", "Поръчайте днес и спестете."],
-      ["Официален Сайт {product}", "Купете от официалния верифициран сайт.", "100% сигурно плащане гарантирано."],
+      ["Вземи {discount}% Отстъпка Днес",  "Пакет с {discount}% отстъпка — само днес.",   "Ексклузивни пакетни оферти за вас."],
+      ["Безплатна Доставка Сега",           "Безплатна доставка над {currency}{ship_min}.", "Бърза доставка в цяла България."],
+      ["Гаранция {guarantee} Дни Пълна",   "Изпробвайте {product} без никакъв риск.",      "Връщане на парите за {guarantee} дни."],
+      ["Поръчай {product} Сега Днес",       "Продукти от {currency}{price} на брой.",       "Поръчайте от официалния сайт сега."],
+      ["Пакетни Оферти Сега За Вас",        "Спестете повече с ексклузивни пакети.",         "Отстъпката се прилага автоматично."],
+      ["Ограничена Оферта Днес",            "Не пропускайте {discount}% отстъпка сега.",    "Поръчайте днес и спестете веднага."],
+      ["Официален Сайт На {product}",       "Купете от официалния верифициран сайт.",       "100% сигурно плащане гарантирано."],
     ],
     snippetHeader: "Types",
-    snippetValues: ["{discount}% Отстъпка", "Безплатна Доставка", "Гаранция {guarantee} Дни", "От {currency}{price}"],
+    snippetValues: [
+      "Официален Продукт", "Без Риск", "Бърза Доставка", "Сигурно Плащане",
+      "{discount}% Отстъпка", "Гаранция {guarantee} Дни", "От {currency}{price}",
+    ],
   },
 };
 
@@ -603,26 +630,40 @@ export function generateAllCopy(ctx: CopyContext, lang: string, finalUrl: string
 export interface ValidationResult {
   valid: boolean;
   errors: string[];
+  warnings: string[];
 }
 
 export function validateCopy(copy: GeneratedCopy): ValidationResult {
   const errors: string[] = [];
-  // Use effectiveLength: Google counts fallback text, not macro syntax
+  const warnings: string[] = [];
+
+  // Max limits
   copy.headlines.forEach((h, i) => {
     const len = effectiveLength(h);
     if (len > 30) errors.push(`H${i + 1} excede 30 chars [${len}]`);
+    else if (len < 21) warnings.push(`H${i + 1} curto [${len}/30 — mín. 70%]`);
   });
   copy.descriptions.forEach((d, i) => {
     const len = effectiveLength(d);
     if (len > 90) errors.push(`D${i + 1} excede 90 chars [${len}]`);
+    else if (len < 63) warnings.push(`D${i + 1} curto [${len}/90 — mín. 70%]`);
   });
   copy.callouts.forEach((c, i) => {
-    if (effectiveLength(c) > 25) errors.push(`Callout ${i + 1} excede 25 chars`);
+    const len = effectiveLength(c);
+    if (len > 25) errors.push(`Callout ${i + 1} excede 25 chars`);
+    else if (len < 18) warnings.push(`Callout ${i + 1} curto [${len}/25 — mín. 70%]`);
   });
   copy.sitelinks.forEach((s, i) => {
-    if (effectiveLength(s.text) > 25) errors.push(`Sitelink ${i + 1} text excede 25 chars`);
-    if (effectiveLength(s.d1) > 35) errors.push(`Sitelink ${i + 1} D1 excede 35 chars`);
-    if (effectiveLength(s.d2) > 35) errors.push(`Sitelink ${i + 1} D2 excede 35 chars`);
+    const tLen = effectiveLength(s.text);
+    const d1Len = effectiveLength(s.d1);
+    const d2Len = effectiveLength(s.d2);
+    if (tLen > 25) errors.push(`Sitelink ${i + 1} texto excede 25 chars`);
+    else if (tLen < 18) warnings.push(`Sitelink ${i + 1} texto curto [${tLen}/25]`);
+    if (d1Len > 35) errors.push(`Sitelink ${i + 1} D1 excede 35 chars`);
+    else if (d1Len < 25) warnings.push(`Sitelink ${i + 1} D1 curto [${d1Len}/35]`);
+    if (d2Len > 35) errors.push(`Sitelink ${i + 1} D2 excede 35 chars`);
+    else if (d2Len < 25) warnings.push(`Sitelink ${i + 1} D2 curto [${d2Len}/35]`);
   });
-  return { valid: errors.length === 0, errors };
+
+  return { valid: errors.length === 0, errors, warnings };
 }

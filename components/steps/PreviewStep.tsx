@@ -17,10 +17,14 @@ interface Props {
 // ─── Character badge ──────────────────────────────────────────────────────────
 
 function CharBadge({ value, limit }: { value: string; limit: number }) {
-  const len = effectiveLength(value); // count as Google counts (strips macro syntax)
-  const ok = len <= limit;
+  const len = effectiveLength(value);
+  const pct = len / limit;
+  const color =
+    len > limit  ? "bg-red-900/50 text-red-400" :
+    pct < 0.70   ? "bg-amber-900/50 text-amber-400" :
+                   "bg-emerald-900/50 text-emerald-400";
   return (
-    <span className={`text-xs font-mono px-1.5 py-0.5 rounded shrink-0 ${ok ? "bg-emerald-900/50 text-emerald-400" : "bg-red-900/50 text-red-400"}`}>
+    <span className={`text-xs font-mono px-1.5 py-0.5 rounded shrink-0 ${color}`}>
       {len}/{limit}
     </span>
   );
