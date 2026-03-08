@@ -24,6 +24,10 @@ Rules:
 - For "country": infer from shipping info, prices, language, domain`;
 
 async function extractFromText(text: string): Promise<Record<string, string>> {
+  if (!process.env.OPENROUTER_API_KEY) {
+    throw new Error("Chave da API ausente! Adicione OPENROUTER_API_KEY nas Environment Variables da Vercel e faça um REDEPLOY.");
+  }
+
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
