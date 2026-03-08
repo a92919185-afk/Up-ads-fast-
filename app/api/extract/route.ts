@@ -1,4 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
+import fs from "fs";
+import path from "path";
+
+function getApiKey(): string {
+  // Primary: Next.js env loading
+  if (process.env.OPENROUTER_API_KEY?.trim()) {
+    return process.env.OPENROUTER_API_KEY.trim();
+  }
+  // Fallback: read .env.local directly
+  try {
+    const envPath = path.join(process.cwd(), ".env.local");
+    const content = fs.readFileSync(envPath, "utf8");
+    const match = content.match(/OPENROUTER_API_KEY=(.+)/);
+    if (match?.[1]?.trim()) return match[1].trim();
+  } catch { /* ignore */ }
+  return "";
+}
 
 const EXTRACT_PROMPT = `You are a data extraction assistant for Google Ads campaigns.
 Extract the following fields from the offer page text and return ONLY valid JSON:
@@ -24,9 +41,9 @@ Rules:
 - For "country": infer from shipping info, prices, language, domain`;
 
 async function extractFromText(text: string): Promise<Record<string, string>> {
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey || apiKey.trim() === "") {
-    throw new Error("Chave da API ausente! (O valor lido pelo servidor foi: " + typeof apiKey + "). Garanta que o nome da variável é OPENROUTER_API_KEY na Vercel.");
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    throw new Error("Chave da API ausente! Crie o arquivo web/.env.local com: OPENROUTER_API_KEY=sk-or-v1-...");
   }
 
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
