@@ -8,6 +8,7 @@ export interface CopyContext {
   price: string;
   currency: string;
   ship_min: string;
+  has_free_shipping: string; // "yes" | "no"
 }
 
 export interface SitelinkEntry {
@@ -451,6 +452,50 @@ const COPY: Record<string, LangTemplates> = {
     snippetHeader: "Types",
     snippetValues: ["{discount}% Reducere", "Transport Gratuit", "Garanție {guarantee} Zile", "De La {currency}{price}"],
   },
+
+  bg: {
+    // H1–H13: DKI (87% ≈ 90%) | H14–H15: Локация (доставка/оскъдност)
+    h: [
+      "{KeyWord:{product}} Официален Сайт",
+      "{KeyWord:{product}} {discount}% Отстъпка",
+      "Пакет {KeyWord:{product}} {discount}%",
+      "{KeyWord:{product}} Без Риск",
+      "{KeyWord:{product}} {guarantee} Дни",
+      "Поръчай {KeyWord:{product}} Сега",
+      "{discount}% На {KeyWord:{product}}",
+      "{KeyWord:{product}} Оферта Днес",
+      "{KeyWord:{product}} От {currency}{price}",
+      "Изпробвай {KeyWord:{product}}",
+      "{KeyWord:{product}} Безплатна Доставка",
+      "{KeyWord:{product}} Ексклузивно",
+      "{KeyWord:{product}} До Вас",
+      "Доставка до {LOCATION(City):София}",
+      "Оферта в {LOCATION(City):София} Сега",
+    ],
+    d: [
+      "{KeyWord:{product}} {discount}% отстъпка. Бърза доставка до {LOCATION(City):София}. Гаранция {guarantee} дни.",
+      "Изпробвайте {KeyWord:{product}} без риск. Гаранция {guarantee} дни. Поръчайте от {currency}{price}.",
+      "{discount}% отстъпка на {KeyWord:{product}}. Доставка до {LOCATION(City):София} и цяла България.",
+      "Купете {KeyWord:{product}} за {currency}{price}. Гаранция {guarantee} дни и {discount}% отстъпка днес.",
+    ],
+    callouts: [
+      "До {discount}% Отстъпка",
+      "Безплатна Доставка",
+      "Гаранция {guarantee} Дни",
+      "Пакет {discount}% Отстъпка",
+      "От {currency}{price}",
+    ],
+    sitelinks: [
+      ["{discount}% Отстъпка Сега",   "Пакет с {discount}% отстъпка днес.",          "Ексклузивни пакетни оферти."],
+      ["Безплатна Доставка",           "Безплатна доставка над {currency}{ship_min}.", "Бърза доставка в България."],
+      ["Гаранция {guarantee} Дни",    "Изпробвайте без никакъв риск.",               "Връщане за {guarantee} дни."],
+      ["Поръчай Сега",                 "Продукти от {currency}{price}.",              "Поръчайте от официалния сайт."],
+      ["Пакетна Цена",                 "Спестете повече с пакети.",                   "Отстъпката се прилага автоматично."],
+      ["Ограничена Оферта",            "Не пропускайте {discount}% отстъпка.",        "Поръчайте днес и спестете."],
+    ],
+    snippetHeader: "Types",
+    snippetValues: ["{discount}% Отстъпка", "Безплатна Доставка", "Гаранция {guarantee} Дни", "От {currency}{price}"],
+  },
 };
 
 // ─── GENERATOR ─────────────────────────────────────────────────────────────
@@ -469,21 +514,42 @@ function usesEmptyVar(template: string, ctx: CopyContext): boolean {
   );
 }
 
+// Keywords that indicate a shipping-related template (multilingual)
+const SHIPPING_WORDS = [
+  "ship", "shipping", "delivery", "deliver",      // en
+  "frete", "entrega",                              // pt
+  "envío", "envio",                                // es
+  "versand", "lieferung",                          // de
+  "livraison", "envoi",                            // fr
+  "toimitus",                                      // fi
+  "levering",                                      // da
+  "transport", "livrare",                          // ro
+  "доставка",                                      // bg
+];
+
+function hasShippingRef(text: string): boolean {
+  const lower = text.toLowerCase();
+  return SHIPPING_WORDS.some(w => lower.includes(w));
+}
+
 export function generateAllCopy(ctx: CopyContext, lang: string, finalUrl: string): GeneratedCopy {
   const tmpl = COPY[lang] ?? COPY["en"];
+  const noShip = ctx.has_free_shipping !== "yes";
 
   const campaign = `Search - ${ctx.product} - ${ctx.country}`;
   const adGroup  = `${ctx.product} - Offer`;
   const path1    = trunc(ctx.product, 15);
   const path2    = ctx.discount ? trunc(`${ctx.discount}-Off`, 15) : trunc(ctx.product, 15);
 
-  // Filter out templates that reference empty/missing variables
-  const validH = tmpl.h.filter(t => !usesEmptyVar(t, ctx));
-  const validD = tmpl.d.filter(t => !usesEmptyVar(t, ctx));
+  // Filter: skip templates with empty vars OR shipping refs when no free shipping
+  const skip = (t: string) => usesEmptyVar(t, ctx) || (noShip && hasShippingRef(t));
+
+  const validH = tmpl.h.filter(t => !skip(t));
+  const validD = tmpl.d.filter(t => !skip(t));
 
   const headlines    = validH.slice(0, 15).map(t => renderTrunc(t, ctx, 30));
   const descriptions = validD.slice(0, 4).map(t => renderTrunc(t, ctx, 90));
-  const callouts     = tmpl.callouts.filter(t => !usesEmptyVar(t, ctx)).map(t => renderTrunc(t, ctx, 25));
+  const callouts     = tmpl.callouts.filter(t => !skip(t)).map(t => renderTrunc(t, ctx, 25));
 
   // Google rejects identical URLs across sitelinks — generate small variations
   const base = finalUrl.replace(/\/+$/, "");
@@ -497,7 +563,7 @@ export function generateAllCopy(ctx: CopyContext, lang: string, finalUrl: string
     base + "/?v=3",
   ];
   const sitelinks: SitelinkEntry[] = tmpl.sitelinks
-    .filter(([txt, d1, d2]) => !usesEmptyVar(txt + d1 + d2, ctx))
+    .filter(([txt, d1, d2]) => !skip(txt + d1 + d2))
     .map(([txt, d1, d2], i) => ({
       text: renderTrunc(txt, ctx, 25),
       url:  urlVariants[i] ?? finalUrl,

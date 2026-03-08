@@ -17,10 +17,11 @@ export async function POST(req: NextRequest) {
       product: product.trim(),
       country: country.trim().toUpperCase(),
       discount: discount?.trim() || "0",
-      guarantee: guarantee?.trim() || "30",
+      guarantee: guarantee?.trim() || "",
       price: price?.trim() || "0",
       currency: currency?.trim() || "$",
       ship_min: ship_min?.trim() || "0",
+      has_free_shipping: has_free_shipping?.trim() || "no",
     };
 
     const copy = generateAllCopy(ctx, language.toLowerCase(), url);
