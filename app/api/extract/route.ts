@@ -24,14 +24,15 @@ Rules:
 - For "country": infer from shipping info, prices, language, domain`;
 
 async function extractFromText(text: string): Promise<Record<string, string>> {
-  if (!process.env.OPENROUTER_API_KEY) {
-    throw new Error("Chave da API ausente! Adicione OPENROUTER_API_KEY nas Environment Variables da Vercel e faça um REDEPLOY.");
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey || apiKey.trim() === "") {
+    throw new Error("Chave da API ausente! (O valor lido pelo servidor foi: " + typeof apiKey + "). Garanta que o nome da variável é OPENROUTER_API_KEY na Vercel.");
   }
 
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      "Authorization": `Bearer ${apiKey.trim()}`,
       "Content-Type": "application/json",
       "HTTP-Referer": "http://localhost:3000",
       "X-Title": "Upadsfast Web App",
