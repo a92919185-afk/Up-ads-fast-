@@ -1,38 +1,61 @@
 import ExcelJS from "exceljs";
 import type { GeneratedCopy, CopyContext } from "./templates";
 
+// ─── COLOURS ────────────────────────────────────────────────────────────────
+
 const TAB_COLORS = {
-  ANUNCIOS_SEARCH_RSA: "1F4E79",
-  CALLOUTS: "375623",
-  SITELINKS: "7B2C2C",
-  SNIPPETS: "614A19",
-  PROMOCOES: "4A235A",
+  CAMPANHAS:       "1A3A6B",
+  GRUPOS_ANUNCIOS: "2E5E2E",
+  ANUNCIOS:        "1F4E79",
+  CALLOUTS:        "375623",
+  SITELINKS:       "7B2C2C",
+  SNIPPETS:        "614A19",
+  PROMOCOES:       "4A235A",
 } as const;
+
+// ─── STYLE HELPERS ───────────────────────────────────────────────────────────
 
 function styleHeader(cell: ExcelJS.Cell, aux = false) {
   cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: aux ? "FF2E75B6" : "FF1F4E79" } };
   cell.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 10 };
   cell.alignment = { horizontal: "center", vertical: "middle" };
   cell.border = {
-    top: { style: "thin", color: { argb: "FFCCCCCC" } },
+    top:    { style: "thin", color: { argb: "FFCCCCCC" } },
     bottom: { style: "thin", color: { argb: "FFCCCCCC" } },
-    left: { style: "thin", color: { argb: "FFCCCCCC" } },
-    right: { style: "thin", color: { argb: "FFCCCCCC" } },
+    left:   { style: "thin", color: { argb: "FFCCCCCC" } },
+    right:  { style: "thin", color: { argb: "FFCCCCCC" } },
   };
 }
 
 function styleData(cell: ExcelJS.Cell) {
   cell.font = { size: 10 };
-  cell.alignment = { horizontal: "left", vertical: "middle" };
+  cell.alignment = { horizontal: "left", vertical: "middle", wrapText: false };
   cell.border = {
-    top: { style: "thin", color: { argb: "FFCCCCCC" } },
+    top:    { style: "thin", color: { argb: "FFCCCCCC" } },
     bottom: { style: "thin", color: { argb: "FFCCCCCC" } },
-    left: { style: "thin", color: { argb: "FFCCCCCC" } },
-    right: { style: "thin", color: { argb: "FFCCCCCC" } },
+    left:   { style: "thin", color: { argb: "FFCCCCCC" } },
+    right:  { style: "thin", color: { argb: "FFCCCCCC" } },
   };
 }
 
-function autoWidth(ws: ExcelJS.Worksheet, min = 12, max = 45) {
+function addRow(ws: ExcelJS.Worksheet, rowIndex: number, values: (string | number)[]) {
+  values.forEach((v, i) => {
+    const cell = ws.getRow(rowIndex).getCell(i + 1);
+    cell.value = v;
+    styleData(cell);
+  });
+}
+
+function addHeaders(ws: ExcelJS.Worksheet, headers: string[], auxStart?: number) {
+  ws.getRow(1).height = 22;
+  headers.forEach((h, i) => {
+    const cell = ws.getRow(1).getCell(i + 1);
+    cell.value = h;
+    styleHeader(cell, auxStart !== undefined && i >= auxStart);
+  });
+}
+
+function autoWidth(ws: ExcelJS.Worksheet, min = 12, max = 50) {
   ws.columns.forEach(col => {
     let maxLen = min;
     col.eachCell?.({ includeEmpty: true }, cell => {
@@ -43,6 +66,8 @@ function autoWidth(ws: ExcelJS.Worksheet, min = 12, max = 45) {
   });
 }
 
+// ─── TYPES ───────────────────────────────────────────────────────────────────
+
 export interface MatrixItem {
   copy: GeneratedCopy;
   ctx: CopyContext;
@@ -50,147 +75,205 @@ export interface MatrixItem {
   url: string;
 }
 
+// ─── MAIN EXPORT ─────────────────────────────────────────────────────────────
+
 export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
   const wb = new ExcelJS.Workbook();
 
-  // ── ABA 1: ANUNCIOS_SEARCH_RSA
-  const ws1 = wb.addWorksheet("ANUNCIOS_SEARCH_RSA");
-  ws1.properties.tabColor = { argb: `FF${TAB_COLORS.ANUNCIOS_SEARCH_RSA}` };
-  ws1.getRow(1).height = 22;
+  // ── ABA 1: CAMPANHAS ─────────────────────────────────────────────────────
+  // Cria as campanhas com todos os campos obrigatórios do Google Ads Editor.
+  // Sem essa aba, as outras abas geram "Nenhuma entidade corresponde a Campanha".
+  {
+    const ws = wb.addWorksheet("CAMPANHAS");
+    ws.properties.tabColor = { argb: `FF${TAB_COLORS.CAMPANHAS}` };
+    addHeaders(ws, [
+      "Action",
+      "Campaign",
+      "Campaign type",
+      "Campaign status",
+      "Budget",
+      "Budget type",
+      "Bid strategy type",
+      "Target network (Google Search)",
+      "EU political ads",
+    ]);
 
-  const officialHeaders = [
-    "Campaign", "Ad group", "Final URL",
-    ...Array.from({ length: 15 }, (_, i) => `Headline ${i + 1}`),
-    ...Array.from({ length: 4 }, (_, i) => `Description ${i + 1}`),
-    "Path 1", "Path 2", "Status",
-  ];
-  const auxHeaders = [
-    "Product_Name", "Country", "Language",
-    "Discount_Value", "Guarantee_Days",
-    "Has_Free_Shipping", "Free_Ship_Min", "Currency", "Price",
-  ];
-  const allHeaders = [...officialHeaders, ...auxHeaders];
+    const seenCampaigns = new Set<string>();
+    let r = 2;
+    items.forEach(({ copy }) => {
+      if (!seenCampaigns.has(copy.campaign)) {
+        seenCampaigns.add(copy.campaign);
+        addRow(ws, r++, [
+          "Add",
+          copy.campaign,
+          "Search",
+          "Enabled",
+          10,           // orçamento placeholder — edite no Google Ads
+          "Daily",
+          "Manual CPC",
+          "Yes",
+          "No",         // não é anúncio político
+        ]);
+      }
+    });
+    ws.views = [{ state: "frozen", ySplit: 1 }];
+    autoWidth(ws);
+  }
 
-  allHeaders.forEach((h, i) => {
-    const cell = ws1.getRow(1).getCell(i + 1);
-    cell.value = h;
-    styleHeader(cell, i >= officialHeaders.length);
-  });
+  // ── ABA 2: GRUPOS_ANUNCIOS ───────────────────────────────────────────────
+  // Cria os grupos de anúncios antes de inserir anúncios e extensões.
+  {
+    const ws = wb.addWorksheet("GRUPOS_ANUNCIOS");
+    ws.properties.tabColor = { argb: `FF${TAB_COLORS.GRUPOS_ANUNCIOS}` };
+    addHeaders(ws, [
+      "Action",
+      "Campaign",
+      "Ad group",
+      "Ad group status",
+      "Max CPC",
+    ]);
 
-  let r1 = 2;
-  items.forEach(({ copy, ctx, language, url }) => {
-    const dataRow = [
-      copy.campaign, copy.adGroup, url,
-      ...copy.headlines,
-      ...copy.descriptions,
-      copy.path1, copy.path2, "Enabled",
-      ctx.product, ctx.country, language,
-      ctx.discount, ctx.guarantee, "Yes", ctx.ship_min, ctx.currency, ctx.price,
+    const seenGroups = new Set<string>();
+    let r = 2;
+    items.forEach(({ copy }) => {
+      const key = `${copy.campaign}|${copy.adGroup}`;
+      if (!seenGroups.has(key)) {
+        seenGroups.add(key);
+        addRow(ws, r++, ["Add", copy.campaign, copy.adGroup, "Enabled", 1]);
+      }
+    });
+    ws.views = [{ state: "frozen", ySplit: 1 }];
+    autoWidth(ws);
+  }
+
+  // ── ABA 3: ANUNCIOS_SEARCH_RSA ───────────────────────────────────────────
+  {
+    const ws = wb.addWorksheet("ANUNCIOS_SEARCH_RSA");
+    ws.properties.tabColor = { argb: `FF${TAB_COLORS.ANUNCIOS}` };
+
+    const officialHeaders = [
+      "Action",
+      "Campaign",
+      "Ad group",
+      "Ad type",
+      "Final URL",
+      ...Array.from({ length: 15 }, (_, i) => `Headline ${i + 1}`),
+      ...Array.from({ length: 4 },  (_, i) => `Description ${i + 1}`),
+      "Path 1", "Path 2", "Status",
     ];
-    dataRow.forEach((v, i) => {
-      const cell = ws1.getRow(r1).getCell(i + 1);
-      cell.value = v;
-      styleData(cell);
+    const auxHeaders = [
+      "Product_Name", "Country", "Language",
+      "Discount_Value", "Guarantee_Days",
+      "Has_Free_Shipping", "Free_Ship_Min", "Currency", "Price",
+    ];
+    addHeaders(ws, [...officialHeaders, ...auxHeaders], officialHeaders.length);
+
+    let r = 2;
+    items.forEach(({ copy, ctx, language, url }) => {
+      addRow(ws, r++, [
+        "Add",
+        copy.campaign,
+        copy.adGroup,
+        "Responsive search ad",
+        url,
+        ...copy.headlines,
+        ...copy.descriptions,
+        copy.path1, copy.path2, "Enabled",
+        ctx.product, ctx.country, language,
+        ctx.discount, ctx.guarantee, ctx.has_free_shipping,
+        ctx.ship_min, ctx.currency, ctx.price,
+      ]);
     });
-    r1++;
-  });
-  ws1.views = [{ state: "frozen", ySplit: 1 }];
-  autoWidth(ws1);
+    ws.views = [{ state: "frozen", ySplit: 1 }];
+    autoWidth(ws);
+  }
 
-  // ── ABA 2: CALLOUTS
-  const ws2 = wb.addWorksheet("CALLOUTS");
-  ws2.properties.tabColor = { argb: `FF${TAB_COLORS.CALLOUTS}` };
-  ws2.getRow(1).height = 22;
-  ["Campaign", "Callout text", "Status"].forEach((h, i) => {
-    const cell = ws2.getRow(1).getCell(i + 1);
-    cell.value = h;
-    styleHeader(cell);
-  });
+  // ── ABA 4: CALLOUTS ──────────────────────────────────────────────────────
+  {
+    const ws = wb.addWorksheet("CALLOUTS");
+    ws.properties.tabColor = { argb: `FF${TAB_COLORS.CALLOUTS}` };
+    addHeaders(ws, ["Action", "Campaign", "Callout text", "Status"]);
 
-  let r2 = 2;
-  items.forEach(({ copy }) => {
-    copy.callouts.forEach((text) => {
-      [copy.campaign, text, "Enabled"].forEach((v, i) => {
-        const cell = ws2.getRow(r2).getCell(i + 1);
-        cell.value = v;
-        styleData(cell);
+    let r = 2;
+    items.forEach(({ copy }) => {
+      copy.callouts.forEach(text => {
+        addRow(ws, r++, ["Add", copy.campaign, text, "Enabled"]);
       });
-      r2++;
     });
-  });
-  ws2.views = [{ state: "frozen", ySplit: 1 }];
-  autoWidth(ws2);
+    ws.views = [{ state: "frozen", ySplit: 1 }];
+    autoWidth(ws);
+  }
 
-  // ── ABA 3: SITELINKS
-  const ws3 = wb.addWorksheet("SITELINKS");
-  ws3.properties.tabColor = { argb: `FF${TAB_COLORS.SITELINKS}` };
-  ws3.getRow(1).height = 22;
-  ["Campaign", "Sitelink text", "Final URL", "Description line 1", "Description line 2", "Status"].forEach((h, i) => {
-    const cell = ws3.getRow(1).getCell(i + 1);
-    cell.value = h;
-    styleHeader(cell);
-  });
+  // ── ABA 5: SITELINKS ─────────────────────────────────────────────────────
+  // "Action: Add" resolve "Ação do recurso: Usar existente / ID do item: null"
+  {
+    const ws = wb.addWorksheet("SITELINKS");
+    ws.properties.tabColor = { argb: `FF${TAB_COLORS.SITELINKS}` };
+    addHeaders(ws, [
+      "Action",
+      "Campaign",
+      "Sitelink text",
+      "Final URL",
+      "Description line 1",
+      "Description line 2",
+      "Status",
+    ]);
 
-  let r3 = 2;
-  items.forEach(({ copy }) => {
-    copy.sitelinks.forEach((sl) => {
-      [copy.campaign, sl.text, sl.url, sl.d1, sl.d2, "Enabled"].forEach((v, i) => {
-        const cell = ws3.getRow(r3).getCell(i + 1);
-        cell.value = v;
-        styleData(cell);
+    let r = 2;
+    items.forEach(({ copy }) => {
+      copy.sitelinks.forEach(sl => {
+        addRow(ws, r++, ["Add", copy.campaign, sl.text, sl.url, sl.d1, sl.d2, "Enabled"]);
       });
-      r3++;
     });
-  });
-  ws3.views = [{ state: "frozen", ySplit: 1 }];
-  autoWidth(ws3);
+    ws.views = [{ state: "frozen", ySplit: 1 }];
+    autoWidth(ws);
+  }
 
-  // ── ABA 4: SNIPPETS
-  const ws4 = wb.addWorksheet("SNIPPETS");
-  ws4.properties.tabColor = { argb: `FF${TAB_COLORS.SNIPPETS}` };
-  ws4.getRow(1).height = 22;
-  ["Campaign", "Structured snippet header", "Value 1", "Value 2", "Value 3", "Value 4"].forEach((h, i) => {
-    const cell = ws4.getRow(1).getCell(i + 1);
-    cell.value = h;
-    styleHeader(cell);
-  });
+  // ── ABA 6: SNIPPETS ──────────────────────────────────────────────────────
+  {
+    const ws = wb.addWorksheet("SNIPPETS");
+    ws.properties.tabColor = { argb: `FF${TAB_COLORS.SNIPPETS}` };
+    const maxVals = Math.max(...items.map(it => it.copy.snippetValues.length), 4);
+    addHeaders(ws, [
+      "Action",
+      "Campaign",
+      "Structured snippet header",
+      ...Array.from({ length: maxVals }, (_, i) => `Value ${i + 1}`),
+    ]);
 
-  let r4 = 2;
-  items.forEach(({ copy }) => {
-    [copy.campaign, copy.snippetHeader, ...copy.snippetValues].forEach((v, i) => {
-      const cell = ws4.getRow(r4).getCell(i + 1);
-      cell.value = v;
-      styleData(cell);
+    let r = 2;
+    items.forEach(({ copy }) => {
+      addRow(ws, r++, ["Add", copy.campaign, copy.snippetHeader, ...copy.snippetValues]);
     });
-    r4++;
-  });
-  ws4.views = [{ state: "frozen", ySplit: 1 }];
-  autoWidth(ws4);
+    ws.views = [{ state: "frozen", ySplit: 1 }];
+    autoWidth(ws);
+  }
 
-  // ── ABA 5: PROMOCOES
-  const ws5 = wb.addWorksheet("PROMOCOES");
-  ws5.properties.tabColor = { argb: `FF${TAB_COLORS.PROMOCOES}` };
-  ws5.getRow(1).height = 22;
-  ["Campaign", "Occasion", "Discount type", "Percent off", "Promotion code", "Final URL", "Start date", "End date"].forEach((h, i) => {
-    const cell = ws5.getRow(1).getCell(i + 1);
-    cell.value = h;
-    styleHeader(cell);
-  });
+  // ── ABA 7: PROMOCOES ─────────────────────────────────────────────────────
+  {
+    const ws = wb.addWorksheet("PROMOCOES");
+    ws.properties.tabColor = { argb: `FF${TAB_COLORS.PROMOCOES}` };
+    addHeaders(ws, [
+      "Action", "Campaign", "Occasion", "Discount type",
+      "Percent off", "Promotion code", "Final URL", "Start date", "End date",
+    ]);
 
-  let r5 = 2;
-  items.forEach(({ copy }) => {
-    [
-      copy.campaign, copy.promo.occasion, copy.promo.discountType,
-      copy.promo.percentOff, copy.promo.promoCode, copy.promo.finalUrl, "", "",
-    ].forEach((v, i) => {
-      const cell = ws5.getRow(r5).getCell(i + 1);
-      cell.value = v;
-      styleData(cell);
+    let r = 2;
+    items.forEach(({ copy }) => {
+      addRow(ws, r++, [
+        "Add",
+        copy.campaign,
+        copy.promo.occasion,
+        copy.promo.discountType,
+        copy.promo.percentOff,
+        copy.promo.promoCode,
+        copy.promo.finalUrl,
+        "", "",
+      ]);
     });
-    r5++;
-  });
-  ws5.views = [{ state: "frozen", ySplit: 1 }];
-  autoWidth(ws5);
+    ws.views = [{ state: "frozen", ySplit: 1 }];
+    autoWidth(ws);
+  }
 
   const arrayBuffer = await wb.xlsx.writeBuffer();
   return Buffer.from(arrayBuffer);
