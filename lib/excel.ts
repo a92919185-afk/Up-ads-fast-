@@ -4,13 +4,13 @@ import type { GeneratedCopy, CopyContext } from "./templates";
 // ─── COLOURS ────────────────────────────────────────────────────────────────
 
 const TAB_COLORS = {
-  CAMPANHAS:       "1A3A6B",
-  GRUPOS_ANUNCIOS: "2E5E2E",
-  ANUNCIOS:        "1F4E79",
-  CALLOUTS:        "375623",
-  SITELINKS:       "7B2C2C",
-  SNIPPETS:        "614A19",
-  PROMOCOES:       "4A235A",
+  CAMPAIGNS: "1A3A6B",
+  AD_GROUPS: "2E5E2E",
+  ADS: "1F4E79",
+  CALLOUTS: "375623",
+  SITELINKS: "7B2C2C",
+  SNIPPETS: "614A19",
+  PROMOTIONS: "4A235A",
 } as const;
 
 // ─── STYLE HELPERS ───────────────────────────────────────────────────────────
@@ -20,10 +20,10 @@ function styleHeader(cell: ExcelJS.Cell, aux = false) {
   cell.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 10 };
   cell.alignment = { horizontal: "center", vertical: "middle" };
   cell.border = {
-    top:    { style: "thin", color: { argb: "FFCCCCCC" } },
+    top: { style: "thin", color: { argb: "FFCCCCCC" } },
     bottom: { style: "thin", color: { argb: "FFCCCCCC" } },
-    left:   { style: "thin", color: { argb: "FFCCCCCC" } },
-    right:  { style: "thin", color: { argb: "FFCCCCCC" } },
+    left: { style: "thin", color: { argb: "FFCCCCCC" } },
+    right: { style: "thin", color: { argb: "FFCCCCCC" } },
   };
 }
 
@@ -31,10 +31,10 @@ function styleData(cell: ExcelJS.Cell) {
   cell.font = { size: 10 };
   cell.alignment = { horizontal: "left", vertical: "middle", wrapText: false };
   cell.border = {
-    top:    { style: "thin", color: { argb: "FFCCCCCC" } },
+    top: { style: "thin", color: { argb: "FFCCCCCC" } },
     bottom: { style: "thin", color: { argb: "FFCCCCCC" } },
-    left:   { style: "thin", color: { argb: "FFCCCCCC" } },
-    right:  { style: "thin", color: { argb: "FFCCCCCC" } },
+    left: { style: "thin", color: { argb: "FFCCCCCC" } },
+    right: { style: "thin", color: { argb: "FFCCCCCC" } },
   };
 }
 
@@ -84,8 +84,8 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
   // Cria as campanhas com todos os campos obrigatórios do Google Ads Editor.
   // Sem essa aba, as outras abas geram "Nenhuma entidade corresponde a Campanha".
   {
-    const ws = wb.addWorksheet("CAMPANHAS");
-    ws.properties.tabColor = { argb: `FF${TAB_COLORS.CAMPANHAS}` };
+    const ws = wb.addWorksheet("Campaigns");
+    ws.properties.tabColor = { argb: `FF${TAB_COLORS.CAMPAIGNS}` };
     addHeaders(ws, [
       "Action",
       "Campaign",
@@ -95,6 +95,10 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
       "Budget type",
       "Bid strategy type",
       "Target CPA",
+      "Network: Google Search",
+      "Network: Search Partners",
+      "Network: Display Network",
+      "EU Political Ads",
     ]);
 
     const seenCampaigns = new Set<string>();
@@ -111,6 +115,10 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
           "Daily",
           "Target CPA",
           Number(ctx.target_cpa) || 5,
+          "Yes",
+          "No",
+          "No",
+          "No",
         ]);
       }
     });
@@ -121,8 +129,8 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
   // ── ABA 2: GRUPOS_ANUNCIOS ───────────────────────────────────────────────
   // Cria os grupos de anúncios antes de inserir anúncios e extensões.
   {
-    const ws = wb.addWorksheet("GRUPOS_ANUNCIOS");
-    ws.properties.tabColor = { argb: `FF${TAB_COLORS.GRUPOS_ANUNCIOS}` };
+    const ws = wb.addWorksheet("Ad groups");
+    ws.properties.tabColor = { argb: `FF${TAB_COLORS.AD_GROUPS}` };
     addHeaders(ws, [
       "Action",
       "Campaign",
@@ -145,8 +153,8 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
 
   // ── ABA 3: ANUNCIOS_SEARCH_RSA ───────────────────────────────────────────
   {
-    const ws = wb.addWorksheet("ANUNCIOS_SEARCH_RSA");
-    ws.properties.tabColor = { argb: `FF${TAB_COLORS.ANUNCIOS}` };
+    const ws = wb.addWorksheet("Ads");
+    ws.properties.tabColor = { argb: `FF${TAB_COLORS.ADS}` };
 
     const officialHeaders = [
       "Action",
@@ -155,8 +163,8 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
       "Ad type",
       "Final URL",
       ...Array.from({ length: 15 }, (_, i) => `Headline ${i + 1}`),
-      ...Array.from({ length: 4 },  (_, i) => `Description ${i + 1}`),
-      "Path 1", "Path 2", "Status",
+      ...Array.from({ length: 4 }, (_, i) => `Description ${i + 1}`),
+      "Path 1", "Path 2", "Ad status",
     ];
     const auxHeaders = [
       "Product_Name", "Country", "Language",
@@ -187,9 +195,14 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
 
   // ── ABA 4: CALLOUTS ──────────────────────────────────────────────────────
   {
-    const ws = wb.addWorksheet("CALLOUTS");
+    const ws = wb.addWorksheet("Callouts");
     ws.properties.tabColor = { argb: `FF${TAB_COLORS.CALLOUTS}` };
-    addHeaders(ws, ["Action", "Campaign", "Callout text", "Status"]);
+    addHeaders(ws, [
+      "Action",
+      "Campaign",
+      "Callout text",
+      "Callout status",
+    ]);
 
     let r = 2;
     items.forEach(({ copy }) => {
@@ -204,7 +217,7 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
   // ── ABA 5: SITELINKS ─────────────────────────────────────────────────────
   // "Action: Add" resolve "Ação do recurso: Usar existente / ID do item: null"
   {
-    const ws = wb.addWorksheet("SITELINKS");
+    const ws = wb.addWorksheet("Sitelinks");
     ws.properties.tabColor = { argb: `FF${TAB_COLORS.SITELINKS}` };
     addHeaders(ws, [
       "Action",
@@ -213,7 +226,7 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
       "Final URL",
       "Description line 1",
       "Description line 2",
-      "Status",
+      "Sitelink status",
     ]);
 
     let r = 2;
@@ -228,7 +241,7 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
 
   // ── ABA 6: SNIPPETS ──────────────────────────────────────────────────────
   {
-    const ws = wb.addWorksheet("SNIPPETS");
+    const ws = wb.addWorksheet("Structured snippets");
     ws.properties.tabColor = { argb: `FF${TAB_COLORS.SNIPPETS}` };
     const maxVals = Math.max(...items.map(it => it.copy.snippetValues.length), 4);
     addHeaders(ws, [
@@ -248,8 +261,8 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
 
   // ── ABA 7: PROMOCOES ─────────────────────────────────────────────────────
   {
-    const ws = wb.addWorksheet("PROMOCOES");
-    ws.properties.tabColor = { argb: `FF${TAB_COLORS.PROMOCOES}` };
+    const ws = wb.addWorksheet("Promotions");
+    ws.properties.tabColor = { argb: `FF${TAB_COLORS.PROMOTIONS}` };
     addHeaders(ws, [
       "Action", "Campaign", "Occasion", "Discount type",
       "Percent off", "Promotion code", "Final URL", "Start date", "End date",
