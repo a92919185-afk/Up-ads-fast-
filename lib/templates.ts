@@ -191,7 +191,7 @@ const COPY: Record<string, LangTemplates> = {
     ],
     snippetHeader: "Tipos",
     snippetValues: [
-      "Produto Oficial Autorizado", "Compra Blindada Sem Risco", "Entrega Imediata e Rápida", "Seu Pagamento 100% Seguro",
+      "Produto Oficial Verificado", "Compra Blindada Sem Risco", "Entrega Imediata e Rápida", "Seu Pagamento 100% Seguro",
       "Até {discount}% de Desconto", "Garantia Total de {guarantee} Dias", "Melhores Kits a Partir {currency}{price}",
     ],
   },
@@ -239,8 +239,8 @@ const COPY: Record<string, LangTemplates> = {
     ],
     snippetHeader: "Types",
     snippetValues: [
-      "El Único Producto Oficial", "Compras Seguras Sin Riesgo", "Tiempos De Entrega Rápidos", "Tu Pago Está 100% Protegido",
-      "Disfruta Del {discount}% De Descuento", "Garantía Absoluta De {guarantee} Días", "Tus Bundles Parten De {currency}{price}",
+      "El Único Produto Oficial", "Compras Seguras Sin Riesgo", "Entrega Muy Rápida Ya", "Pago 100% Protegido",
+      "Disfruta Del {discount}% De Descuento", "Garantia Absoluta De {guarantee} Días", "Tus Bundles Parten De {currency}{price}",
     ],
   },
 
@@ -287,7 +287,7 @@ const COPY: Record<string, LangTemplates> = {
     ],
     snippetHeader: "Types",
     snippetValues: [
-      "Offizielles Premium-Produkt", "Ohne Risiko Schnell Testen", "Superschnelle Blitz-Lieferung", "Der Kauf Ist 100% Zertifiziert",
+      "Echtes Premium-Produkt", "Sicher Und Schnell Testen", "Superschnelle Blitz-Lieferung", "Sicherer 100% Kauf",
       "Direkt {discount}% Gutschein Nutzen", "{guarantee} Tage Totale Absicherung", "Alle Bundles Starten Ab {currency}{price}",
     ],
   },
@@ -383,8 +383,8 @@ const COPY: Record<string, LangTemplates> = {
     ],
     snippetHeader: "Types",
     snippetValues: [
-      "Le Véritable Produit Certifié", "Essayez Totalement Sans Risque", "Expédition Extrêmement Rapide", "Votre Paiement Est Super Sécurisé",
-      "Grosse Remise Inédite De {discount}% Off", "Garantie Impeccable De {guarantee} Jours", "Des Packs Incroyables Dès {currency}{price}",
+      "Produit Vrai Et Certifié", "Essayez Totalement Sans Risque", "Livraison Trés Rapide", "Paiement Super Sécurisé",
+      "Grosse Remise Inédite De {discount}% Off", "Garantia Impeccable De {guarantee} Jours", "Des Packs Incroyables Dès {currency}{price}",
     ],
   },
 
@@ -573,8 +573,8 @@ export function generateAllCopy(ctx: CopyContext, lang: string, finalUrl: string
 
   const campaign = `Search - ${ctx.product} - ${ctx.country}`;
   const adGroup = `${ctx.product} - Offer`;
-  const path1 = trunc(`${ctx.product} Oficial`, 15);
-  const path2 = ctx.discount ? trunc(`Desconto ${ctx.discount} OFF`, 15) : trunc(`${ctx.product} Agora`, 15);
+  const path1 = trunc(ctx.product.replace(/\s+/g, "-") + "-Oficial", 15);
+  const path2 = ctx.discount ? trunc("Off-" + ctx.discount + "-Hoje", 15) : trunc(ctx.product.replace(/\s+/g, "-") + "-Agora", 15);
 
   // Filter: skip templates with empty vars OR shipping refs when no free shipping
   const skip = (t: string) => usesEmptyVar(t, ctx) || (noShip && hasShippingRef(t));
