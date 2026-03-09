@@ -249,46 +249,39 @@ export default function MatrixStep({ items, onRemove, onClear, onBack }: Props) 
         <div className="p-5 flex flex-col gap-5">
 
           {/* Passo a passo */}
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2">
+
+            {/* Bloco A — Exportar */}
+            <p className="text-zinc-500 text-xs uppercase tracking-widest font-semibold mt-1">Parte 1 — Exportar a planilha</p>
+
             {[
               {
                 n: "1",
-                title: "Exporte o .xlsx",
-                desc: 'Clique em "Exportar Campanhas" acima e salve o arquivo.',
+                color: "bg-blue-600/20 border-blue-600/40 text-blue-400",
+                title: "Exporte a planilha aqui",
+                desc: 'Clique no botão "Exportar Campanhas" acima. Um arquivo .xlsx será baixado para o seu computador.',
               },
               {
                 n: "2",
-                title: "Converta para Google Sheets",
-                desc: "Abra o Google Drive → arraste o .xlsx → clique com botão direito → Abrir com → Planilhas Google → Arquivo → Salvar como Planilhas Google.",
+                color: "bg-blue-600/20 border-blue-600/40 text-blue-400",
+                title: "Abra o Google Sheets",
+                desc: 'Clique no botão verde "Abrir Google Sheets" abaixo. Vai abrir em uma nova aba do navegador.',
               },
               {
                 n: "3",
-                title: "Copie a URL da planilha",
-                desc: 'Na barra do navegador, copie a URL completa da planilha Google (começa com docs.google.com/spreadsheets/...).',
+                color: "bg-blue-600/20 border-blue-600/40 text-blue-400",
+                title: "Importe o arquivo no Google Sheets",
+                desc: 'No Google Sheets: clique em "Arquivo" → "Importar" → "Fazer upload" → selecione o arquivo .xlsx que você baixou → clique em "Importar dados".',
               },
               {
                 n: "4",
-                title: "Abra o Google Ads Scripts",
-                desc: "No Google Ads → Ferramentas → Scripts → clique em + para criar novo script → apague o conteúdo existente.",
-              },
-              {
-                n: "5",
-                title: "Cole a URL aqui e copie o script",
-                desc: 'Cole a URL da planilha no campo abaixo → o script já será gerado com ela preenchida → clique em "Copiar Script" → cole no editor do Google Ads.',
-              },
-              {
-                n: "6",
-                title: "Teste primeiro (PREVIEW_MODE = true)",
-                desc: "Execute com PREVIEW_MODE = true para validar sem criar nada. Confira o log em busca de erros.",
-              },
-              {
-                n: "7",
-                title: "Aplique de verdade (PREVIEW_MODE = false)",
-                desc: "Mude PREVIEW_MODE para false → execute novamente → as campanhas serão criadas no Google Ads.",
+                color: "bg-blue-600/20 border-blue-600/40 text-blue-400",
+                title: "Copie a URL da planilha",
+                desc: 'Com a planilha aberta no Google Sheets, copie a URL completa que está na barra do navegador. Ela começa com: docs.google.com/spreadsheets/d/...',
               },
             ].map((step) => (
-              <div key={step.n} className="flex gap-3">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-600/20 border border-blue-600/40 text-blue-400 text-xs font-bold flex items-center justify-center mt-0.5">
+              <div key={step.n} className="flex gap-3 py-2">
+                <span className={`flex-shrink-0 w-6 h-6 rounded-full border text-xs font-bold flex items-center justify-center mt-0.5 ${step.color}`}>
                   {step.n}
                 </span>
                 <div>
@@ -297,15 +290,81 @@ export default function MatrixStep({ items, onRemove, onClear, onBack }: Props) 
                 </div>
               </div>
             ))}
-          </div>
 
-          {/* Aviso importante */}
-          <div className="rounded-lg bg-amber-950/30 border border-amber-800/40 px-4 py-3 flex gap-2">
-            <span className="text-amber-400 text-sm flex-shrink-0">⚠</span>
-            <p className="text-amber-300/80 text-xs leading-relaxed">
-              <strong className="text-amber-300">Atenção:</strong> após importar, configure <strong>targeting de dispositivos</strong> manualmente em cada campanha:
-              Google Ads → Campanha → Configurações → Dispositivos → Computadores: −100% · Tablets: −100%
-            </p>
+            {/* Divisor */}
+            <div className="border-t border-white/5 my-1" />
+
+            {/* Bloco B — Script */}
+            <p className="text-zinc-500 text-xs uppercase tracking-widest font-semibold mt-1">Parte 2 — Configurar o script no Google Ads</p>
+
+            {[
+              {
+                n: "5",
+                color: "bg-emerald-600/20 border-emerald-600/40 text-emerald-400",
+                title: "Cole a URL da planilha no campo abaixo",
+                desc: 'Logo abaixo existe um campo para colar a URL. Ao colar, o script é gerado automaticamente com sua planilha já configurada dentro dele.',
+              },
+              {
+                n: "6",
+                color: "bg-emerald-600/20 border-emerald-600/40 text-emerald-400",
+                title: "Copie o script",
+                desc: 'Clique em "Copiar Script". O script completo estará na área de transferência, pronto para colar.',
+              },
+              {
+                n: "7",
+                color: "bg-emerald-600/20 border-emerald-600/40 text-emerald-400",
+                title: "Abra o Google Ads → Ferramentas → Scripts",
+                desc: 'No Google Ads, clique em "Ferramentas e configurações" (ícone de chave) → "Scripts" → clique no botão "+" para criar um novo script → apague tudo que estiver lá → cole o script copiado.',
+              },
+              {
+                n: "8",
+                color: "bg-emerald-600/20 border-emerald-600/40 text-emerald-400",
+                title: "Teste antes de criar (PREVIEW_MODE = true)",
+                desc: 'O script vem com PREVIEW_MODE = true. Isso significa que ele vai apenas simular, sem criar nada de verdade. Clique em "Executar" e verifique o log abaixo — se aparecer [PREVIEW] em todas as abas, está funcionando.',
+              },
+              {
+                n: "9",
+                color: "bg-emerald-600/20 border-emerald-600/40 text-emerald-400",
+                title: "Crie as campanhas de verdade (PREVIEW_MODE = false)",
+                desc: 'Quando o teste estiver ok, mude a linha PREVIEW_MODE = true para PREVIEW_MODE = false → clique em "Executar" novamente → o script vai criar todas as campanhas automaticamente, uma por vez, com pausa entre cada uma.',
+              },
+            ].map((step) => (
+              <div key={step.n} className="flex gap-3 py-2">
+                <span className={`flex-shrink-0 w-6 h-6 rounded-full border text-xs font-bold flex items-center justify-center mt-0.5 ${step.color}`}>
+                  {step.n}
+                </span>
+                <div>
+                  <p className="text-zinc-200 text-sm font-medium">{step.title}</p>
+                  <p className="text-zinc-500 text-xs leading-relaxed mt-0.5">{step.desc}</p>
+                </div>
+              </div>
+            ))}
+
+            {/* Divisor */}
+            <div className="border-t border-white/5 my-1" />
+
+            {/* Bloco C — Pós-criação */}
+            <p className="text-zinc-500 text-xs uppercase tracking-widest font-semibold mt-1">Parte 3 — Após criar as campanhas</p>
+
+            {[
+              {
+                n: "10",
+                color: "bg-amber-600/20 border-amber-600/40 text-amber-400",
+                title: "Configure targeting de dispositivos (somente Mobile)",
+                desc: 'No Google Ads → entre em cada campanha criada → "Configurações" → "Dispositivos" → defina Computadores: −100% e Tablets: −100%. Isso garante que os anúncios apareçam somente no celular.',
+              },
+            ].map((step) => (
+              <div key={step.n} className="flex gap-3 py-2">
+                <span className={`flex-shrink-0 w-6 h-6 rounded-full border text-xs font-bold flex items-center justify-center mt-0.5 ${step.color}`}>
+                  {step.n}
+                </span>
+                <div>
+                  <p className="text-zinc-200 text-sm font-medium">{step.title}</p>
+                  <p className="text-zinc-500 text-xs leading-relaxed mt-0.5">{step.desc}</p>
+                </div>
+              </div>
+            ))}
+
           </div>
 
           {/* Campo de URL da planilha */}
