@@ -6,13 +6,15 @@ import type { MatrixItem } from "@/lib/excel";
 
 // ─── Script Google Ads ────────────────────────────────────────────────────────
 
-const GOOGLE_ADS_SCRIPT = `// ============================================================
+function buildScript(url: string) {
+  const safeUrl = url.trim() || 'COLE_A_URL_DA_SUA_PLANILHA_AQUI';
+  return `// ============================================================
 //  UPADSFAST — Google Ads Script V4
 //  Documentação: developers.google.com/google-ads/scripts
 // ============================================================
 
 // ─── PASSO 1: Cole aqui a URL da sua Planilha Google ─────────
-var SPREADSHEET_URL = 'COLE_A_URL_DA_SUA_PLANILHA_AQUI';
+var SPREADSHEET_URL = '${safeUrl}';
 
 // ─── PASSO 2: Modo de execução ───────────────────────────────
 // true  = apenas visualiza, não cria nada (recomendado primeiro)
@@ -80,6 +82,7 @@ function processarAba(ss, nomeAba) {
     Logger.log('[ERRO]    "' + nomeAba + '" — ' + e.message);
   }
 }`;
+}
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -95,6 +98,7 @@ interface Props {
 export default function MatrixStep({ items, onRemove, onClear, onBack }: Props) {
   const [exporting, setExporting] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [sheetUrl, setSheetUrl] = useState("");
 
   async function handleExport() {
     if (items.length === 0) return;
@@ -118,7 +122,7 @@ export default function MatrixStep({ items, onRemove, onClear, onBack }: Props) 
   }
 
   async function handleCopyScript() {
-    await navigator.clipboard.writeText(GOOGLE_ADS_SCRIPT);
+    await navigator.clipboard.writeText(buildScript(sheetUrl));
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   }
@@ -204,6 +208,25 @@ export default function MatrixStep({ items, onRemove, onClear, onBack }: Props) 
         </Button>
       </div>
 
+      {/* ── Link Google Drive ── */}
+      <a
+        href="https://sheets.google.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center justify-center gap-2 w-full rounded-lg border border-white/8 bg-zinc-900/40 hover:bg-zinc-900/80 hover:border-white/20 transition-all py-3 text-sm text-zinc-400 hover:text-white group"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="13" viewBox="0 0 2048 2733" fill="none">
+          <path d="M1241 0H293C190 0 107 83 107 186v2361c0 103 83 186 186 186h1462c103 0 186-83 186-186V682z" fill="#0F9D58"/>
+          <path d="M1241 0l700 682h-700z" fill="#057642"/>
+          <rect x="320" y="1196" width="1408" height="124" rx="62" fill="white" fillOpacity=".7"/>
+          <rect x="320" y="1444" width="1408" height="124" rx="62" fill="white" fillOpacity=".7"/>
+          <rect x="320" y="1692" width="1408" height="124" rx="62" fill="white" fillOpacity=".7"/>
+          <rect x="320" y="1940" width="900" height="124" rx="62" fill="white" fillOpacity=".7"/>
+        </svg>
+        <span>Abrir Google Sheets para importar o arquivo</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-40 group-hover:opacity-100 transition-opacity"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      </a>
+
       {/* ══════════════════════════════════════════════════════════ */}
       {/* ── Próximo Passo: Script Google Ads ── */}
       {/* ══════════════════════════════════════════════════════════ */}
@@ -245,8 +268,8 @@ export default function MatrixStep({ items, onRemove, onClear, onBack }: Props) 
               },
               {
                 n: "5",
-                title: "Cole o script abaixo",
-                desc: 'Clique em "Copiar Script" abaixo → cole no editor de scripts → substitua COLE_A_URL_DA_SUA_PLANILHA_AQUI pela URL copiada no passo 3.',
+                title: "Cole a URL aqui e copie o script",
+                desc: 'Cole a URL da planilha no campo abaixo → o script já será gerado com ela preenchida → clique em "Copiar Script" → cole no editor do Google Ads.',
               },
               {
                 n: "6",
@@ -280,6 +303,43 @@ export default function MatrixStep({ items, onRemove, onClear, onBack }: Props) 
             </p>
           </div>
 
+          {/* Campo de URL da planilha */}
+          <div className="rounded-lg border border-white/10 bg-zinc-900/60 p-4 flex flex-col gap-2">
+            <label className="text-zinc-300 text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5">
+              <span className="text-blue-400">↳</span>
+              Cole aqui a URL da sua Planilha Google
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={sheetUrl}
+                onChange={e => setSheetUrl(e.target.value)}
+                placeholder="https://docs.google.com/spreadsheets/d/..."
+                className="flex-1 bg-zinc-950 border border-white/10 rounded-md px-3 py-2 text-sm text-white placeholder:text-zinc-600 outline-none focus:border-blue-500 transition-colors font-mono"
+              />
+              {sheetUrl && (
+                <button
+                  onClick={() => setSheetUrl("")}
+                  className="text-zinc-600 hover:text-zinc-400 px-2 text-xs"
+                  title="Limpar"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+            {sheetUrl && (
+              <p className="text-emerald-400 text-xs flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                URL inserida — o script abaixo já está pronto para copiar
+              </p>
+            )}
+            {!sheetUrl && (
+              <p className="text-zinc-600 text-xs">
+                Cole a URL antes de copiar o script. Assim ele já vem com a URL preenchida automaticamente.
+              </p>
+            )}
+          </div>
+
           {/* Script com botão de copiar */}
           <div className="rounded-lg border border-white/8 overflow-hidden">
             <div className="flex items-center justify-between px-4 py-2.5 bg-zinc-900 border-b border-white/8">
@@ -306,7 +366,7 @@ export default function MatrixStep({ items, onRemove, onClear, onBack }: Props) 
               </button>
             </div>
             <pre className="text-xs text-zinc-400 p-4 overflow-x-auto leading-relaxed max-h-64 overflow-y-auto font-mono bg-zinc-950/50">
-              <code>{GOOGLE_ADS_SCRIPT}</code>
+              <code>{buildScript(sheetUrl)}</code>
             </pre>
           </div>
 
