@@ -94,13 +94,16 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
       "Budget",
       "Budget type",
       "Bid strategy type",
+      "Target CPA",
       "Target network (Google Search)",
+      "Target network (Search partners)",
+      "Target network (Display Network)",
       "EU political ads",
     ]);
 
     const seenCampaigns = new Set<string>();
     let r = 2;
-    items.forEach(({ copy }) => {
+    items.forEach(({ copy, ctx }) => {
       if (!seenCampaigns.has(copy.campaign)) {
         seenCampaigns.add(copy.campaign);
         addRow(ws, r++, [
@@ -108,11 +111,14 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
           copy.campaign,
           "Search",
           "Enabled",
-          10,           // orçamento placeholder — edite no Google Ads
+          Number(ctx.budget) || 10,
           "Daily",
-          "Manual CPC",
+          "Target CPA",
+          Number(ctx.target_cpa) || 5,
           "Yes",
-          "No",         // não é anúncio político
+          "No",
+          "No",
+          "No",         // não é anúncio político na UE
         ]);
       }
     });

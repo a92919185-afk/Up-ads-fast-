@@ -144,6 +144,8 @@ export default function EditStep({ initialData, onConfirm, onBack, loading }: Pr
     guarantee:        initialData.guarantee        ?? "",
     has_free_shipping: initialData.has_free_shipping === "yes" ? "yes" : "no",
     url:              initialData.url              ?? "",
+    budget:           initialData.budget           ?? "",
+    target_cpa:       initialData.target_cpa       ?? "",
   });
 
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -203,6 +205,8 @@ export default function EditStep({ initialData, onConfirm, onBack, loading }: Pr
         {field("Preço", "price", "37")}
         {field("Desconto (%)", "discount", "50")}
         {field("Garantia (dias)", "guarantee", "30")}
+        {field("Orçamento Diário", "budget", "50")}
+        {field("CPA Alvo", "target_cpa", "15")}
 
         {/* Frete grátis */}
         <div className="space-y-1.5">

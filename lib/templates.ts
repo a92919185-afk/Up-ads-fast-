@@ -9,6 +9,8 @@ export interface CopyContext {
   currency: string;
   ship_min: string;
   has_free_shipping: string; // "yes" | "no"
+  budget: string;      // daily budget in account currency
+  target_cpa: string;  // target CPA in account currency
 }
 
 export interface SitelinkEntry {
