@@ -5,12 +5,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import type { GeneratedCopy, CopyContext } from "@/lib/templates";
 import { effectiveLength } from "@/lib/templates";
+import type { MatrixItem } from "@/lib/excel";
 
 interface Props {
   copy: GeneratedCopy;
   ctx: CopyContext;
   language: string;
   url: string;
+  onAddToMatrix: (item: MatrixItem) => void;
   onBack: () => void;
 }
 
@@ -20,9 +22,9 @@ function CharBadge({ value, limit }: { value: string; limit: number }) {
   const len = effectiveLength(value);
   const pct = len / limit;
   const color =
-    len > limit  ? "bg-red-900/50 text-red-400" :
-    pct < 0.70   ? "bg-amber-900/50 text-amber-400" :
-                   "bg-emerald-900/50 text-emerald-400";
+    len > limit ? "bg-red-900/50 text-red-400" :
+      pct < 0.70 ? "bg-amber-900/50 text-amber-400" :
+        "bg-emerald-900/50 text-emerald-400";
   return (
     <span className={`text-xs font-mono px-1.5 py-0.5 rounded shrink-0 ${color}`}>
       {len}/{limit}
@@ -58,7 +60,7 @@ function EditCell({
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function PreviewStep({ copy: initialCopy, ctx, language, url, onBack }: Props) {
+export default function PreviewStep({ copy: initialCopy, ctx, language, url, onAddToMatrix, onBack }: Props) {
   const [copy, setCopy] = useState<GeneratedCopy>(initialCopy);
   const [downloading, setDownloading] = useState(false);
 
@@ -114,11 +116,11 @@ export default function PreviewStep({ copy: initialCopy, ctx, language, url, onB
       <Tabs defaultValue="rsa" className="w-full">
         <TabsList className="w-full bg-zinc-900 border border-white/8 flex">
           {[
-            { value: "rsa",       label: "RSA" },
-            { value: "callouts",  label: "Callouts" },
+            { value: "rsa", label: "RSA" },
+            { value: "callouts", label: "Callouts" },
             { value: "sitelinks", label: "Sitelinks" },
-            { value: "snippets",  label: "Snippets" },
-            { value: "promo",     label: "Promoção" },
+            { value: "snippets", label: "Snippets" },
+            { value: "promo", label: "Promoção" },
           ].map(t => (
             <TabsTrigger key={t.value} value={t.value} className="flex-1 text-xs data-[state=active]:bg-zinc-700">
               {t.label}
@@ -137,13 +139,13 @@ export default function PreviewStep({ copy: initialCopy, ctx, language, url, onB
               <tbody>
                 {copy.headlines.map((h, i) => (
                   <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02]">
-                    <td className="py-2 px-3 text-zinc-500 text-xs font-mono">{`H${i+1}`}</td>
+                    <td className="py-2 px-3 text-zinc-500 text-xs font-mono">{`H${i + 1}`}</td>
                     <td className="py-2 px-3"><EditCell value={h} limit={30} onChange={v => setHeadline(i, v)} /></td>
                   </tr>
                 ))}
                 {copy.descriptions.map((d, i) => (
                   <tr key={`d${i}`} className="border-b border-white/5 hover:bg-white/[0.02]">
-                    <td className="py-2 px-3 text-zinc-500 text-xs font-mono">{`D${i+1}`}</td>
+                    <td className="py-2 px-3 text-zinc-500 text-xs font-mono">{`D${i + 1}`}</td>
                     <td className="py-2 px-3"><EditCell value={d} limit={90} onChange={v => setDescription(i, v)} /></td>
                   </tr>
                 ))}
@@ -175,7 +177,7 @@ export default function PreviewStep({ copy: initialCopy, ctx, language, url, onB
               <tbody>
                 {copy.callouts.map((c, i) => (
                   <tr key={i} className="border-b border-white/5 last:border-0 hover:bg-white/[0.02]">
-                    <td className="py-2 px-3 text-zinc-500 text-xs font-mono">{i+1}</td>
+                    <td className="py-2 px-3 text-zinc-500 text-xs font-mono">{i + 1}</td>
                     <td className="py-2 px-3"><EditCell value={c} limit={25} onChange={v => setCallout(i, v)} /></td>
                   </tr>
                 ))}
@@ -198,10 +200,10 @@ export default function PreviewStep({ copy: initialCopy, ctx, language, url, onB
               <tbody>
                 {copy.sitelinks.map((sl, i) => (
                   <tr key={i} className="border-b border-white/5 last:border-0 hover:bg-white/[0.02] align-top">
-                    <td className="py-2 px-3 text-zinc-500 text-xs font-mono pt-3 shrink-0">{i+1}</td>
+                    <td className="py-2 px-3 text-zinc-500 text-xs font-mono pt-3 shrink-0">{i + 1}</td>
                     <td className="py-2 px-3"><EditCell value={sl.text} limit={25} onChange={v => setSitelinkField(i, "text", v)} /></td>
-                    <td className="py-2 px-3"><EditCell value={sl.d1}   limit={35} onChange={v => setSitelinkField(i, "d1",   v)} /></td>
-                    <td className="py-2 px-3"><EditCell value={sl.d2}   limit={35} onChange={v => setSitelinkField(i, "d2",   v)} /></td>
+                    <td className="py-2 px-3"><EditCell value={sl.d1} limit={35} onChange={v => setSitelinkField(i, "d1", v)} /></td>
+                    <td className="py-2 px-3"><EditCell value={sl.d2} limit={35} onChange={v => setSitelinkField(i, "d2", v)} /></td>
                     <td className="py-2 px-3">
                       <EditCell value={sl.url} limit={2048} onChange={v => setSitelinkField(i, "url", v)} mono />
                     </td>
@@ -256,9 +258,16 @@ export default function PreviewStep({ copy: initialCopy, ctx, language, url, onB
         <Button
           onClick={handleDownload}
           disabled={downloading}
-          className="flex-1 h-12 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-base"
+          className="h-12 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm px-4"
+          title="Baixar apenas esta campanha"
         >
-          {downloading ? "Gerando arquivo..." : "⬇ Baixar .xlsx para Upload"}
+          {downloading ? "..." : "⬇ .xlsx"}
+        </Button>
+        <Button
+          onClick={() => onAddToMatrix({ copy, ctx, language, url })}
+          className="flex-1 h-12 bg-blue-600 hover:bg-blue-500 text-white font-bold text-base shadow-lg shadow-blue-900/20"
+        >
+          ➕ Adicionar à Matriz
         </Button>
       </div>
     </div>

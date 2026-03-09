@@ -3,10 +3,10 @@ import type { GeneratedCopy, CopyContext } from "./templates";
 
 const TAB_COLORS = {
   ANUNCIOS_SEARCH_RSA: "1F4E79",
-  CALLOUTS:            "375623",
-  SITELINKS:           "7B2C2C",
-  SNIPPETS:            "614A19",
-  PROMOCOES:           "4A235A",
+  CALLOUTS: "375623",
+  SITELINKS: "7B2C2C",
+  SNIPPETS: "614A19",
+  PROMOCOES: "4A235A",
 } as const;
 
 function styleHeader(cell: ExcelJS.Cell, aux = false) {
@@ -14,10 +14,10 @@ function styleHeader(cell: ExcelJS.Cell, aux = false) {
   cell.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 10 };
   cell.alignment = { horizontal: "center", vertical: "middle" };
   cell.border = {
-    top:    { style: "thin", color: { argb: "FFCCCCCC" } },
+    top: { style: "thin", color: { argb: "FFCCCCCC" } },
     bottom: { style: "thin", color: { argb: "FFCCCCCC" } },
-    left:   { style: "thin", color: { argb: "FFCCCCCC" } },
-    right:  { style: "thin", color: { argb: "FFCCCCCC" } },
+    left: { style: "thin", color: { argb: "FFCCCCCC" } },
+    right: { style: "thin", color: { argb: "FFCCCCCC" } },
   };
 }
 
@@ -25,10 +25,10 @@ function styleData(cell: ExcelJS.Cell) {
   cell.font = { size: 10 };
   cell.alignment = { horizontal: "left", vertical: "middle" };
   cell.border = {
-    top:    { style: "thin", color: { argb: "FFCCCCCC" } },
+    top: { style: "thin", color: { argb: "FFCCCCCC" } },
     bottom: { style: "thin", color: { argb: "FFCCCCCC" } },
-    left:   { style: "thin", color: { argb: "FFCCCCCC" } },
-    right:  { style: "thin", color: { argb: "FFCCCCCC" } },
+    left: { style: "thin", color: { argb: "FFCCCCCC" } },
+    right: { style: "thin", color: { argb: "FFCCCCCC" } },
   };
 }
 
@@ -43,12 +43,14 @@ function autoWidth(ws: ExcelJS.Worksheet, min = 12, max = 45) {
   });
 }
 
-export async function generateXlsx(
-  copy: GeneratedCopy,
-  ctx: CopyContext,
-  lang: string,
-  finalUrl: string
-): Promise<Buffer> {
+export interface MatrixItem {
+  copy: GeneratedCopy;
+  ctx: CopyContext;
+  language: string;
+  url: string;
+}
+
+export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
   const wb = new ExcelJS.Workbook();
 
   // ── ABA 1: ANUNCIOS_SEARCH_RSA
@@ -75,18 +77,22 @@ export async function generateXlsx(
     styleHeader(cell, i >= officialHeaders.length);
   });
 
-  const dataRow = [
-    copy.campaign, copy.adGroup, finalUrl,
-    ...copy.headlines,
-    ...copy.descriptions,
-    copy.path1, copy.path2, "Enabled",
-    ctx.product, ctx.country, lang,
-    ctx.discount, ctx.guarantee, "Yes", ctx.ship_min, ctx.currency, ctx.price,
-  ];
-  dataRow.forEach((v, i) => {
-    const cell = ws1.getRow(2).getCell(i + 1);
-    cell.value = v;
-    styleData(cell);
+  let r1 = 2;
+  items.forEach(({ copy, ctx, language, url }) => {
+    const dataRow = [
+      copy.campaign, copy.adGroup, url,
+      ...copy.headlines,
+      ...copy.descriptions,
+      copy.path1, copy.path2, "Enabled",
+      ctx.product, ctx.country, language,
+      ctx.discount, ctx.guarantee, "Yes", ctx.ship_min, ctx.currency, ctx.price,
+    ];
+    dataRow.forEach((v, i) => {
+      const cell = ws1.getRow(r1).getCell(i + 1);
+      cell.value = v;
+      styleData(cell);
+    });
+    r1++;
   });
   ws1.views = [{ state: "frozen", ySplit: 1 }];
   autoWidth(ws1);
@@ -100,11 +106,16 @@ export async function generateXlsx(
     cell.value = h;
     styleHeader(cell);
   });
-  copy.callouts.forEach((text, r) => {
-    [copy.campaign, text, "Enabled"].forEach((v, i) => {
-      const cell = ws2.getRow(r + 2).getCell(i + 1);
-      cell.value = v;
-      styleData(cell);
+
+  let r2 = 2;
+  items.forEach(({ copy }) => {
+    copy.callouts.forEach((text) => {
+      [copy.campaign, text, "Enabled"].forEach((v, i) => {
+        const cell = ws2.getRow(r2).getCell(i + 1);
+        cell.value = v;
+        styleData(cell);
+      });
+      r2++;
     });
   });
   ws2.views = [{ state: "frozen", ySplit: 1 }];
@@ -119,11 +130,16 @@ export async function generateXlsx(
     cell.value = h;
     styleHeader(cell);
   });
-  copy.sitelinks.forEach((sl, r) => {
-    [copy.campaign, sl.text, sl.url, sl.d1, sl.d2, "Enabled"].forEach((v, i) => {
-      const cell = ws3.getRow(r + 2).getCell(i + 1);
-      cell.value = v;
-      styleData(cell);
+
+  let r3 = 2;
+  items.forEach(({ copy }) => {
+    copy.sitelinks.forEach((sl) => {
+      [copy.campaign, sl.text, sl.url, sl.d1, sl.d2, "Enabled"].forEach((v, i) => {
+        const cell = ws3.getRow(r3).getCell(i + 1);
+        cell.value = v;
+        styleData(cell);
+      });
+      r3++;
     });
   });
   ws3.views = [{ state: "frozen", ySplit: 1 }];
@@ -138,10 +154,15 @@ export async function generateXlsx(
     cell.value = h;
     styleHeader(cell);
   });
-  [copy.campaign, copy.snippetHeader, ...copy.snippetValues].forEach((v, i) => {
-    const cell = ws4.getRow(2).getCell(i + 1);
-    cell.value = v;
-    styleData(cell);
+
+  let r4 = 2;
+  items.forEach(({ copy }) => {
+    [copy.campaign, copy.snippetHeader, ...copy.snippetValues].forEach((v, i) => {
+      const cell = ws4.getRow(r4).getCell(i + 1);
+      cell.value = v;
+      styleData(cell);
+    });
+    r4++;
   });
   ws4.views = [{ state: "frozen", ySplit: 1 }];
   autoWidth(ws4);
@@ -155,13 +176,18 @@ export async function generateXlsx(
     cell.value = h;
     styleHeader(cell);
   });
-  [
-    copy.campaign, copy.promo.occasion, copy.promo.discountType,
-    copy.promo.percentOff, copy.promo.promoCode, copy.promo.finalUrl, "", "",
-  ].forEach((v, i) => {
-    const cell = ws5.getRow(2).getCell(i + 1);
-    cell.value = v;
-    styleData(cell);
+
+  let r5 = 2;
+  items.forEach(({ copy }) => {
+    [
+      copy.campaign, copy.promo.occasion, copy.promo.discountType,
+      copy.promo.percentOff, copy.promo.promoCode, copy.promo.finalUrl, "", "",
+    ].forEach((v, i) => {
+      const cell = ws5.getRow(r5).getCell(i + 1);
+      cell.value = v;
+      styleData(cell);
+    });
+    r5++;
   });
   ws5.views = [{ state: "frozen", ySplit: 1 }];
   autoWidth(ws5);
