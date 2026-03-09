@@ -120,10 +120,10 @@ const COPY: Record<string, LangTemplates> = {
       "Flash Sale Near {LOCATION(City):City} Now",
     ],
     d: [
-      "Get {KeyWord:{product}} with {discount}% off today. Fast free delivery to {LOCATION(City):City}. Includes {guarantee}-day guarantee.",
-      "Try {KeyWord:{product}} absolutely risk-free with our {guarantee}-day money-back guarantee. Order today from {currency}{price}.",
-      "Claim your {discount}% off {KeyWord:{product}} exclusive bundles. Fast reliable shipping to {LOCATION(City):City} and beyond.",
-      "Secure {KeyWord:{product}} for just {currency}{price}. Full {guarantee}-day money-back guarantee and a {discount}% instant discount.",
+      "Get {KeyWord:{product}} with a {discount}% special discount today. Fast reliable shipping to {LOCATION(City):City}.",
+      "Try {KeyWord:{product}} absolutely risk-free via our {guarantee}-day total guarantee. Order now from {currency}{price}.",
+      "Claim your {discount}% off {KeyWord:{product}} bundles. Fast delivery to {LOCATION(City):City} and nationwide.",
+      "Secure {KeyWord:{product}} for just {currency}{price}. Full {guarantee}-day money-back guarantee and {discount}% off today.",
     ],
     callouts: [
       "Save Up To {discount}% Off Today",
@@ -168,10 +168,10 @@ const COPY: Record<string, LangTemplates> = {
       "Super Oferta Em {LOCATION(City):cidade} Hoje",
     ],
     d: [
-      "{KeyWord:{product}} com {discount}% OFF aplicado. Entrega expressa na sua {LOCATION(City):cidade} e em todo Brasil. Garantia absoluta de {guarantee} dias.",
-      "Experimente {KeyWord:{product}} de forma 100% segura com a garantia de {guarantee} dias. Peça imediatamente a partir de apenas {currency}{price}.",
-      "Enorme desconto de {discount}% nos kits de {KeyWord:{product}} somente hoje. Envio super rápido focado em {LOCATION(City):cidade} e no país.",
-      "Compre já {KeyWord:{product}} por incríveis {currency}{price}. Garantia total de {guarantee} dias com generosos {discount}% de desconto.",
+      "Adquira {KeyWord:{product}} com um desconto de {discount}% hoje mesmo. Entrega rápida para {LOCATION(City):cidade}.",
+      "Teste {KeyWord:{product}} sem riscos na garantia de {guarantee} dias. Peça agora mesmo a partir de {currency}{price}.",
+      "Aproveite {discount}% OFF em {KeyWord:{product}} somente agora. Envio agilizado para {LOCATION(City):cidade} hoje.",
+      "Compre {KeyWord:{product}} por apenas {currency}{price}. Garantia total de {guarantee} dias com {discount}% de desconto.",
     ],
     callouts: [
       "Economize Até {discount}% OFF Agora",
@@ -216,10 +216,10 @@ const COPY: Record<string, LangTemplates> = {
       "Gran Oferta En Su {LOCATION(City):ciudad} Ya",
     ],
     d: [
-      "Adquiere {KeyWord:{product}} con un enorme {discount}% off hoy. Envío muy rápido a {LOCATION(City):ciudad} y a toda España. Incluye garantía de {guarantee} días.",
-      "Prueba {KeyWord:{product}} totalmente libre de riegos con la fuerte garantía de {guarantee} días. Ordena a partir de {currency}{price}.",
-      "¡Fuerte oferta limitada! Super {discount}% off en {KeyWord:{product}}. Hacemos envíos rápidos a la {LOCATION(City):ciudad} y otras ciudades.",
-      "Compra inteligentemente {KeyWord:{product}} por {currency}{price}. Cuentas con garantía de {guarantee} días y un ahorro de {discount}%.",
+      "Obtén {KeyWord:{product}} con un {discount}% de descuento especial hoy. Envío muy rápido a {LOCATION(City):ciudad}.",
+      "Prueba {KeyWord:{product}} sin riesgos con la garantía de {guarantee} días. Ordena a partir de solo {currency}{price}.",
+      "¡Gran oferta de {discount}% en {KeyWord:{product}}! Hacemos envíos rápidos a {LOCATION(City):ciudad} y a todo el país.",
+      "Compra {KeyWord:{product}} por solo {currency}{price}. Tienes garantía de {guarantee} días y un ahorro de {discount}% ya.",
     ],
     callouts: [
       "Ahorra Hasta {discount}% OFF",
@@ -264,10 +264,10 @@ const COPY: Record<string, LangTemplates> = {
       "Sonderangebot Direkt Für Die {LOCATION(City):Stadt}",
     ],
     d: [
-      "{KeyWord:{product}} mit {discount}% Rabatt sichern. Ultraschnelle Lieferung direkt nach {LOCATION(City):Stadt}. Absolute {guarantee}-Tage Geld-zurück-Garantie.",
-      "{KeyWord:{product}} komplett risikofrei testen – abgesichert mit {guarantee}-Tage Garantie. Sofort ab nur {currency}{price} online bestellen.",
-      "Fantastische {discount}% Rabatt auf {KeyWord:{product}} Bundles. Sehr schneller und versicherter Versand nach {LOCATION(City):Stadt} und DE.",
-      "Kaufen Sie noch heute {KeyWord:{product}} für günstige {currency}{price}. Volle {guarantee} Tage Garantie und satte {discount}% Rabatt heute sichern.",
+      "Sichern Sie {KeyWord:{product}} mit {discount}% Rabatt heute. Ultraschnelle Lieferung nach {LOCATION(City):Stadt}.",
+      "Jetzt {KeyWord:{product}} risikofrei testen mit {guarantee}-Tage Garantie. Bestellen Sie ab nur {currency}{price}.",
+      "Nutzen Sie {discount}% Rabatt auf {KeyWord:{product}} Bundles. Schneller Versand nach {LOCATION(City):Stadt} und DE.",
+      "Kaufen Sie {KeyWord:{product}} für {currency}{price}. Volle {guarantee} Tage Garantie und satte {discount}% Rabatt heute.",
     ],
     callouts: [
       "Bis Zu {discount}% Rabatt Sichern",
@@ -312,10 +312,10 @@ const COPY: Record<string, LangTemplates> = {
       "Særligt Tilbud I {LOCATION(City):by} Nu",
     ],
     d: [
-      "Få {KeyWord:{product}} med {discount}% rabat i dag. Hurtig levering til {LOCATION(City):by} og Danmark. Fuld {guarantee}-dages garanti.",
-      "Prøv {KeyWord:{product}} uden risiko med vores stærke {guarantee}-dages fulde garanti. Bestil trygt fra {currency}{price}.",
-      "Enorm {discount}% rabat på {KeyWord:{product}} premium bundles. Vi sender hurtigt til {LOCATION(City):by} og hele landet.",
-      "Køb {KeyWord:{product}} for kun {currency}{price}. Du får en stærk {guarantee}-dages garanti og hele {discount}% rabat i dag.",
+      "Få {KeyWord:{product}} med {discount}% rabat i dag. Hurtig levering til {LOCATION(City):by}.",
+      "Prøv {KeyWord:{product}} uden risiko med {guarantee}-dages garanti. Bestil sikkert fra {currency}{price}.",
+      "Spar {discount}% på {KeyWord:{product}} premium bundles. Vi sender hurtigt til {LOCATION(City):by}.",
+      "Køb {KeyWord:{product}} for {currency}{price}. Du får {guarantee}-dages garanti og {discount}% rabat nu.",
     ],
     callouts: [
       "Få Op Til {discount}% Rabat Lige Nu",
@@ -360,10 +360,10 @@ const COPY: Record<string, LangTemplates> = {
       "Superbe Offre Flash Dans Votre {LOCATION(City):ville}",
     ],
     d: [
-      "Obtenez {KeyWord:{product}} avec {discount}% de réduction aujourd'hui. Livraison très rapide sur {LOCATION(City):ville} et la France. Inclut {guarantee} jours garantis.",
-      "Essayez {KeyWord:{product}} avec grande certitude grâce à notre puissante garantie de {guarantee} jours. Commandez dès {currency}{price}.",
-      "Profitez d'une énorme {discount}% de remise sur nos packs {KeyWord:{product}}. Livraison express vers {LOCATION(City):ville} et le pays.",
-      "Achetez {KeyWord:{product}} pour seulement {currency}{price}. Forte garantie de {guarantee} jours et une fantastique réduction immédiate de {discount}%.",
+      "Obtenez {KeyWord:{product}} avec {discount}% de remise aujourd'hui. Livraison rapide sur {LOCATION(City):ville}.",
+      "Essayez {KeyWord:{product}} sans risque avec la garantie de {guarantee} jours. Commandez dès {currency}{price}.",
+      "Profitez de {discount}% de remise sur {KeyWord:{product}}. Livraison express vers {LOCATION(City):ville} et pays.",
+      "Achetez {KeyWord:{product}} pour {currency}{price}. Garantie de {guarantee} jours et une réduction de {discount}%.",
     ],
     callouts: [
       "Gagnez Jusqu'à {discount}% De Remise",
@@ -408,10 +408,10 @@ const COPY: Record<string, LangTemplates> = {
       "Erikoistarjous {LOCATION(City):kaupunki} Alueella",
     ],
     d: [
-      "Hanki {KeyWord:{product}} ja hyödynnä {discount}% alennus tänään. Erittäin nopea toimitus {LOCATION(City):kaupunki} ja koko maahan. Täysi {guarantee} pv takuu.",
-      "Kokeile {KeyWord:{product}} täysin riskittä mahtavalla {guarantee} päivän rahat takaisin -takuulla. Tilaa luotettavasti nyt alkaen {currency}{price}.",
-      "Hyödynnä valtava {discount}% alennus premium {KeyWord:{product}} erikoispaketeista. Mahtavan nopea toimitus turvallisesti {LOCATION(City):kaupunki} ja muualle Suomeen.",
-      "Osta oma {KeyWord:{product}} luotettavasti vain {currency}{price}. Saat vahvan {guarantee} päivän takuun ja huikean {discount}% alennuksen heti.",
+      "Hanki {KeyWord:{product}} ja hyödynnä {discount}% alennus tänään. Nopea toimitus {LOCATION(City):kaupunki} alueelle.",
+      "Kokeile {KeyWord:{product}} riskittä {guarantee} päivän takuulla. Tilaa luotettavasti alkaen vain {currency}{price}.",
+      "Hyödynnä {discount}% alennus {KeyWord:{product}} paketeista. Nopea toimitus {LOCATION(City):kaupunki} ja Suomeen.",
+      "Osta {KeyWord:{product}} vain {currency}{price}. Saat vahvan {guarantee} päivän takuun ja {discount}% alennuksen.",
     ],
     callouts: [
       "Jopa {discount}% Alennus Juuri Nyt",
@@ -456,10 +456,10 @@ const COPY: Record<string, LangTemplates> = {
       "Ofertă Specială În {LOCATION(City):oraș} Acum",
     ],
     d: [
-      "{KeyWord:{product}} cu {discount}% reducere astăzi. Livrare rapidă în {LOCATION(City):oraș} și ramburs garantat {guarantee} zile.",
-      "Testează {KeyWord:{product}} fără niciun risc cu garanția completă de {guarantee} zile. Comandă acum de la {currency}{price}.",
-      "Beneficiază de {discount}% reducere la {KeyWord:{product}}. Livrare express în {LOCATION(City):oraș} și în toată România.",
-      "Achiziționează {KeyWord:{product}} pentru doar {currency}{price}. Garanție {guarantee} zile și {discount}% reducere excelentă azi.",
+      "Obține {KeyWord:{product}} cu {discount}% reducere astăzi. Livrare rapidă în {LOCATION(City):oraș} și România.",
+      "Testează {KeyWord:{product}} fără risc cu garanția de {guarantee} zile. Comandă acum de la doar {currency}{price}.",
+      "Profită de {discount}% reducere la {KeyWord:{product}}. Livrare express în {LOCATION(City):oraș} și în toată țara.",
+      "Cumpără {KeyWord:{product}} cu {currency}{price}. Garanție {guarantee} zile și {discount}% reducere excelentă azi.",
     ],
     callouts: [
       "Până La {discount}% Reducere Astăzi",
@@ -504,10 +504,10 @@ const COPY: Record<string, LangTemplates> = {
       "Страхотна Оферта За {LOCATION(City):град} Днес",
     ],
     d: [
-      "Вземете {KeyWord:{product}} с невероятна {discount}% отстъпка днес. Изключително бърза доставка до {LOCATION(City):град} и областта. Пълна {guarantee}-дневна гаранция.",
-      "Опитайте {KeyWord:{product}} напълно без никакъв риск с нашата {guarantee}-дневна пълна гаранция. Поръчайте напълно сигурно от {currency}{price}.",
-      "Възползвайте се от {discount}% отстъпка на премиум {KeyWord:{product}} пакети. Много бърза доставка до {LOCATION(City):град} и цялата страна.",
-      "Закупете умно {KeyWord:{product}} само за {currency}{price}. Получавате сигурна {guarantee} дневна гаранция и масивна {discount}% отстъпка днес.",
+      "Вземете {KeyWord:{product}} с {discount}% отстъпка днес. Бърза доставка до {LOCATION(City):град} и областта.",
+      "Опитайте {KeyWord:{product}} без риск с {guarantee}-дневна гаранция. Поръчайте сигурно от {currency}{price}.",
+      "Възползвайте се от {discount}% на {KeyWord:{product}} пакети. Бърза доставка до {LOCATION(City):град} и страната.",
+      "Купете {KeyWord:{product}} само за {currency}{price}. Имате {guarantee} дни гаранция и {discount}% отстъпка днес.",
     ],
     callouts: [
       "До {discount}% Огромна Отстъпка Сега",
