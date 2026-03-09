@@ -186,23 +186,23 @@ export default function PreviewStep({ copy: initialCopy, ctx, language, url, onB
 
         {/* ── Sitelinks ── */}
         <TabsContent value="sitelinks" className="mt-3">
-          <div className="rounded-lg border border-white/8 overflow-hidden">
-            <table className="w-full text-sm">
+          <div className="rounded-lg border border-white/8 overflow-x-auto">
+            <table className="min-w-[760px] w-full text-sm">
               <thead><tr className="bg-zinc-900 border-b border-white/8">
-                <th className="py-2 px-3 text-left text-zinc-500 text-xs w-6">#</th>
-                <th className="py-2 px-3 text-left text-zinc-500 text-xs">Text</th>
-                <th className="py-2 px-3 text-left text-zinc-500 text-xs">Desc 1</th>
-                <th className="py-2 px-3 text-left text-zinc-500 text-xs">Desc 2</th>
-                <th className="py-2 px-3 text-left text-zinc-500 text-xs">URL</th>
+                <th className="py-2 px-3 text-left text-zinc-500 text-xs w-6 shrink-0">#</th>
+                <th className="py-2 px-3 text-left text-zinc-500 text-xs min-w-[160px]">Texto (25)</th>
+                <th className="py-2 px-3 text-left text-zinc-500 text-xs min-w-[200px]">Desc 1 (35)</th>
+                <th className="py-2 px-3 text-left text-zinc-500 text-xs min-w-[200px]">Desc 2 (35)</th>
+                <th className="py-2 px-3 text-left text-zinc-500 text-xs min-w-[180px]">URL</th>
               </tr></thead>
               <tbody>
                 {copy.sitelinks.map((sl, i) => (
                   <tr key={i} className="border-b border-white/5 last:border-0 hover:bg-white/[0.02] align-top">
-                    <td className="py-2 px-3 text-zinc-500 text-xs font-mono pt-3">{i+1}</td>
-                    <td className="py-2 px-3 w-36"><EditCell value={sl.text} limit={25} onChange={v => setSitelinkField(i, "text", v)} /></td>
-                    <td className="py-2 px-3 w-44"><EditCell value={sl.d1}   limit={35} onChange={v => setSitelinkField(i, "d1", v)} /></td>
-                    <td className="py-2 px-3 w-44"><EditCell value={sl.d2}   limit={35} onChange={v => setSitelinkField(i, "d2", v)} /></td>
-                    <td className="py-2 px-3 min-w-[160px]">
+                    <td className="py-2 px-3 text-zinc-500 text-xs font-mono pt-3 shrink-0">{i+1}</td>
+                    <td className="py-2 px-3"><EditCell value={sl.text} limit={25} onChange={v => setSitelinkField(i, "text", v)} /></td>
+                    <td className="py-2 px-3"><EditCell value={sl.d1}   limit={35} onChange={v => setSitelinkField(i, "d1",   v)} /></td>
+                    <td className="py-2 px-3"><EditCell value={sl.d2}   limit={35} onChange={v => setSitelinkField(i, "d2",   v)} /></td>
+                    <td className="py-2 px-3">
                       <EditCell value={sl.url} limit={2048} onChange={v => setSitelinkField(i, "url", v)} mono />
                     </td>
                   </tr>

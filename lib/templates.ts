@@ -479,7 +479,7 @@ const COPY: Record<string, LangTemplates> = {
     ],
     snippetHeader: "Types",
     snippetValues: [
-      "Produs Pe Site Oficial", "Comandă Sigură Fără Risc", "Livrare Extrem De Rapidă", "Plata Este 100% Securizată",
+      "Produse Pe Site Oficial", "Comandă Sigură Fără Risc", "Livrare Extrem De Rapidă", "Plată 100% Securizată",
       "Până La {discount}% Reducere", "Garanție Totală {guarantee} Zile", "Prețuri Încep De La {currency}{price}",
     ],
   },
@@ -573,8 +573,8 @@ export function generateAllCopy(ctx: CopyContext, lang: string, finalUrl: string
 
   const campaign = `Search - ${ctx.product} - ${ctx.country}`;
   const adGroup = `${ctx.product} - Offer`;
-  const path1 = trunc(ctx.product, 15);
-  const path2 = ctx.discount ? trunc(`${ctx.discount}-Off`, 15) : trunc(ctx.product, 15);
+  const path1 = trunc(`${ctx.product} Oficial`, 15);
+  const path2 = ctx.discount ? trunc(`Desconto ${ctx.discount} OFF`, 15) : trunc(`${ctx.product} Agora`, 15);
 
   // Filter: skip templates with empty vars OR shipping refs when no free shipping
   const skip = (t: string) => usesEmptyVar(t, ctx) || (noShip && hasShippingRef(t));
