@@ -191,7 +191,7 @@ const COPY: Record<string, LangTemplates> = {
       ["Site Oficial {product}",      "Site verificado e oficial totalmente seguro.","Checkout seguro e confiável garantido."],
       ["Favorito Dos Clientes",       "Confiado por milhares de clientes no Brasil.","Junte-se aos clientes satisfeitos."],
     ],
-    snippetHeader: "Tipos",
+    snippetHeader: "Types",
     snippetValues: [
       "Produto Oficial Verificado", "Compra Blindada Sem Risco", "Entrega Imediata e Rápida", "Seu Pagamento 100% Seguro",
       "Até {discount}% de Desconto", "Garantia Total de {guarantee} Dias", "Melhores Kits a Partir {currency}{price}",
@@ -588,16 +588,16 @@ export function generateAllCopy(ctx: CopyContext, lang: string, finalUrl: string
   const descriptions = validD.slice(0, 4).map(t => renderTrunc(t, ctx, 90));
   const callouts = tmpl.callouts.filter(t => !skip(t)).map(t => renderTrunc(t, ctx, 25));
 
-  // Google rejects identical URLs across sitelinks — generate small variations
+  // Google rejects identical URLs — use distinct valid query params per sitelink
   const base = finalUrl.replace(/\/+$/, "");
   const urlVariants = [
-    base + "/",
-    base + "//",
-    base + "/?",
-    base + "/#",
-    base + "/?ref=1",
-    base + "/?src=2",
-    base + "/?v=3",
+    base,
+    base + "?sl=2",
+    base + "?sl=3",
+    base + "?sl=4",
+    base + "?sl=5",
+    base + "?sl=6",
+    base + "?sl=7",
   ];
   const sitelinks: SitelinkEntry[] = tmpl.sitelinks
     .filter(([txt, d1, d2]) => !skip(txt + d1 + d2))

@@ -95,10 +95,6 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
       "Budget type",
       "Bid strategy type",
       "Target CPA",
-      "Target network (Google Search)",
-      "Target network (Search partners)",
-      "Target network (Display Network)",
-      "EU political ads",
     ]);
 
     const seenCampaigns = new Set<string>();
@@ -115,10 +111,6 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
           "Daily",
           "Target CPA",
           Number(ctx.target_cpa) || 5,
-          "Yes",
-          "No",
-          "No",
-          "No",         // não é anúncio político na UE
         ]);
       }
     });
@@ -136,7 +128,6 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
       "Campaign",
       "Ad group",
       "Ad group status",
-      "Max CPC",
     ]);
 
     const seenGroups = new Set<string>();
@@ -145,7 +136,7 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
       const key = `${copy.campaign}|${copy.adGroup}`;
       if (!seenGroups.has(key)) {
         seenGroups.add(key);
-        addRow(ws, r++, ["Add", copy.campaign, copy.adGroup, "Enabled", 1]);
+        addRow(ws, r++, ["Add", copy.campaign, copy.adGroup, "Enabled"]);
       }
     });
     ws.views = [{ state: "frozen", ySplit: 1 }];

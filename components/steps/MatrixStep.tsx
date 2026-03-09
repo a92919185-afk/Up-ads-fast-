@@ -48,6 +48,11 @@ function main() {
 
   for (var i = 0; i < SHEETS_EM_ORDEM.length; i++) {
     processarAba(ss, SHEETS_EM_ORDEM[i]);
+    // Pausa obrigatória entre uploads para evitar bloqueio do Google
+    if (i < SHEETS_EM_ORDEM.length - 1) {
+      Logger.log('Aguardando 5 segundos antes do próximo upload...');
+      Utilities.sleep(5000);
+    }
   }
 
   Logger.log('-------------------------------------------');
