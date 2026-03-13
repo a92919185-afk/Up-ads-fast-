@@ -31,6 +31,14 @@ var SHEET = {
 var _nextTempId = -1;
 function getNextTempId() { return _nextTempId--; }
 
+// Colunas auxiliares do excel.ts (NÃO são colunas do Google Ads).
+// Devem ser excluídas do Bulk Upload para evitar rejeição.
+var AUX_COLUMNS = [
+  'Product_Name', 'Country', 'Language', 'Discount_Value',
+  'Guarantee_Days', 'Has_Free_Shipping', 'Free_Ship_Min',
+  'Currency', 'Price'
+];
+
 // ============================================================
 // MAIN
 // ============================================================
@@ -255,6 +263,12 @@ function bulkUploadAba(ss, sheetName) {
   for (var h = 0; h < data[0].length; h++) {
     var header = String(data[0][h]).trim();
     if (header === '') continue;
+
+    // Pular colunas auxiliares (não são do Google Ads)
+    if (AUX_COLUMNS.indexOf(header) >= 0) {
+      Logger.log('  [SKIP] Coluna auxiliar ignorada: "' + header + '"');
+      continue;
+    }
 
     // Deduplicar "Status"
     var lower = header.toLowerCase();
