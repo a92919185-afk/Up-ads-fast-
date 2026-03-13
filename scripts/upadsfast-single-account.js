@@ -45,7 +45,7 @@ var AUX_COLUMNS = [
 
 function main() {
   var ss = SpreadsheetApp.openByUrl(SPREADSHEET_URL);
-  var customerId = AdsApp.currentAccount().getCustomerId();
+  var customerId = AdsApp.currentAccount().getCustomerId().replace(/-/g, '');
 
   Logger.log('========================================');
   Logger.log('UPADSFAST — Script Definitivo');
