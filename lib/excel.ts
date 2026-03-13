@@ -90,15 +90,14 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
       "Action",
       "Campaign",
       "Campaign type",
-      "Campaign status",
+      "Status",
       "Budget",
       "Budget type",
-      "Bid strategy type",
-      "Target CPA",
+      "Bid Strategy type",
       "Network: Google Search",
       "Network: Search Partners",
       "Network: Display Network",
-      "EU Political Ads",
+      "EU political ads",
     ]);
 
     const seenCampaigns = new Set<string>();
@@ -113,12 +112,11 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
           "Enabled",
           Number(ctx.budget) || 10,
           "Daily",
-          "Target CPA",
-          Number(ctx.target_cpa) || 5,
+          "Manual CPC",
           "Yes",
           "No",
           "No",
-          "No",
+          "None",
         ]);
       }
     });
@@ -135,7 +133,7 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
       "Action",
       "Campaign",
       "Ad group",
-      "Ad group status",
+      "Status",
     ]);
 
     const seenGroups = new Set<string>();
@@ -164,7 +162,7 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
       "Final URL",
       ...Array.from({ length: 15 }, (_, i) => `Headline ${i + 1}`),
       ...Array.from({ length: 4 }, (_, i) => `Description ${i + 1}`),
-      "Path 1", "Path 2", "Ad status",
+      "Path 1", "Path 2", "Status",
     ];
     const auxHeaders = [
       "Product_Name", "Country", "Language",
@@ -201,7 +199,7 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
       "Action",
       "Campaign",
       "Callout text",
-      "Callout status",
+      "Status",
     ]);
 
     let r = 2;
@@ -226,7 +224,7 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
       "Final URL",
       "Description line 1",
       "Description line 2",
-      "Sitelink status",
+      "Status",
     ]);
 
     let r = 2;
@@ -240,20 +238,23 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
   }
 
   // ── ABA 6: SNIPPETS ──────────────────────────────────────────────────────
+  // Bulk Upload via AdsApp.bulkUploads() exige coluna unica "Structured snippet values"
+  // com valores separados por ponto-e-virgula (;). Colunas individuais "Value 1"..."Value N"
+  // sao formato do Google Ads Editor e causam "Missing value in Structured snippet values".
   {
     const ws = wb.addWorksheet("Structured snippets");
     ws.properties.tabColor = { argb: `FF${TAB_COLORS.SNIPPETS}` };
-    const maxVals = Math.max(...items.map(it => it.copy.snippetValues.length), 4);
     addHeaders(ws, [
       "Action",
       "Campaign",
       "Structured snippet header",
-      ...Array.from({ length: maxVals }, (_, i) => `Value ${i + 1}`),
+      "Structured snippet values",
     ]);
 
     let r = 2;
     items.forEach(({ copy }) => {
-      addRow(ws, r++, ["Add", copy.campaign, copy.snippetHeader, ...copy.snippetValues]);
+      const joinedValues = copy.snippetValues.filter(v => v && v.trim() !== "").join(";");
+      addRow(ws, r++, ["Add", copy.campaign, copy.snippetHeader, joinedValues]);
     });
     ws.views = [{ state: "frozen", ySplit: 1 }];
     autoWidth(ws);
