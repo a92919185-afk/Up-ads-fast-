@@ -15,7 +15,7 @@
 //  - developers.google.com/google-ads/scripts/docs/reference/adsapp/adsapp
 // ============================================================
 
-var SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/1s3NQNSE5-JaqUAUMv5IBMLuY4jX0TbJspuWgziG8QbM/edit';
+var SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/16zPfzG_PaIDy7J5qeV8_1i_b5Sy8qRKKnEWdBmeh06I/edit';
 
 var SHEET = {
   CAMPAIGNS:  'Campaigns',
