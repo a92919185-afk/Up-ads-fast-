@@ -18,10 +18,14 @@ function buildScript(url: string) {
 //    2. Ad groups
 //    3. Ads
 //    4. Keywords
+//    5. Sitelinks_upload
+//    6. Callouts_upload
+//    7. Structured-snippets_upload
 //
 //  Baseado em:
 //  - Templates oficiais: campaign_template.xlsx, ad_group_template.xlsx,
-//    responsive_search_ad_template.xlsx, keyword_template.xlsx
+//    responsive_search_ad_template.xlsx, keyword_template.xlsx,
+//    sitelink_template.csv, callout-template.csv, structured-snippet-template.csv
 //  - developers.google.com/google-ads/scripts/docs/features/bulk-upload
 // ============================================================
 
