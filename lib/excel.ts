@@ -7,16 +7,13 @@ const TAB_COLORS = {
   CAMPAIGNS: "1A3A6B",
   AD_GROUPS: "2E5E2E",
   ADS: "1F4E79",
-  CALLOUTS: "375623",
-  SITELINKS: "7B2C2C",
-  SNIPPETS: "614A19",
-  PROMOTIONS: "4A235A",
+  KEYWORDS: "375623",
 } as const;
 
 // ─── STYLE HELPERS ───────────────────────────────────────────────────────────
 
-function styleHeader(cell: ExcelJS.Cell, aux = false) {
-  cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: aux ? "FF2E75B6" : "FF1F4E79" } };
+function styleHeader(cell: ExcelJS.Cell) {
+  cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF1F4E79" } };
   cell.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 10 };
   cell.alignment = { horizontal: "center", vertical: "middle" };
   cell.border = {
@@ -46,12 +43,12 @@ function addRow(ws: ExcelJS.Worksheet, rowIndex: number, values: (string | numbe
   });
 }
 
-function addHeaders(ws: ExcelJS.Worksheet, headers: string[], auxStart?: number) {
+function addHeaders(ws: ExcelJS.Worksheet, headers: string[]) {
   ws.getRow(1).height = 22;
   headers.forEach((h, i) => {
     const cell = ws.getRow(1).getCell(i + 1);
     cell.value = h;
-    styleHeader(cell, auxStart !== undefined && i >= auxStart);
+    styleHeader(cell);
   });
 }
 
@@ -75,50 +72,81 @@ export interface MatrixItem {
   url: string;
 }
 
+// ─── LANGUAGE → COUNTRY MAPPING ──────────────────────────────────────────────
+
+const LANG_MAP: Record<string, string> = {
+  en: "en", pt: "pt", es: "es", de: "de", fr: "fr",
+  fi: "fi", da: "da", ro: "ro", bg: "bg",
+};
+
 // ─── MAIN EXPORT ─────────────────────────────────────────────────────────────
+// Gera planilha com 4 abas no formato EXATO dos templates oficiais do Google Ads:
+//   1. Campaigns_upload  (33 colunas — template campaign_template.xlsx)
+//   2. AdGroups_upload   (21 colunas — template ad_group_template.xlsx)
+//   3. Ads_upload        (55 colunas — template responsive_search_ad_template.xlsx)
+//   4. Keywords_upload   (18 colunas — template keyword_template.xlsx)
 
 export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
   const wb = new ExcelJS.Workbook();
 
-  // ── ABA 1: CAMPANHAS ─────────────────────────────────────────────────────
-  // Cria as campanhas com todos os campos obrigatórios do Google Ads Editor.
-  // Sem essa aba, as outras abas geram "Nenhuma entidade corresponde a Campanha".
+  // ── ABA 1: Campaigns_upload ────────────────────────────────────────────────
+  // 33 colunas — idêntico ao campaign_template.xlsx do Google Ads
   {
-    const ws = wb.addWorksheet("Campaigns");
+    const ws = wb.addWorksheet("Campaigns_upload");
     ws.properties.tabColor = { argb: `FF${TAB_COLORS.CAMPAIGNS}` };
+
+    // Cabeçalhos EXATOS do template oficial (33 colunas)
     addHeaders(ws, [
-      "Action",
-      "Campaign",
-      "Campaign type",
-      "Status",
-      "Budget",
-      "Budget type",
-      "Bid Strategy type",
-      "Target CPA",
-      "Search Network",
-      "Search Partners",
-      "Display Network",
-      "EU political advertising",
+      "Row Type", "Action", "Campaign status", "Campaign ID", "Campaign",
+      "Campaign type", "Networks", "Budget", "Delivery method", "Budget type",
+      "Bid strategy type", "Bid strategy", "Campaign start date", "Campaign end date",
+      "Language", "Location", "Exclusion", "Devices", "Label",
+      "Target CPA", "Target ROAS", "Display URL option", "Website description",
+      "Target Impression Share", "Max CPC Bid Limit for Target IS",
+      "Location Goal for Target IS", "Tracking template", "Final URL suffix",
+      "Custom parameter", "Inventory type", "Campaign subtype", "Video ad formats",
+      "EU political ads",
     ]);
 
     const seenCampaigns = new Set<string>();
     let r = 2;
-    items.forEach(({ copy, ctx }) => {
+    items.forEach(({ copy, ctx, language }) => {
       if (!seenCampaigns.has(copy.campaign)) {
         seenCampaigns.add(copy.campaign);
         addRow(ws, r++, [
-          "Add",
-          copy.campaign,
-          "Search",
-          "Enabled",
-          Number(ctx.budget) || 10,
-          "Daily",
-          "Target CPA",
-          Number(ctx.target_cpa) || 5,
-          "Yes",
-          "No",
-          "No",
-          "DOES_NOT_CONTAIN_EU_POLITICAL_ADVERTISING",
+          "Campaign",                        // Row Type
+          "Add",                             // Action
+          "Enabled",                         // Campaign status
+          "",                                // Campaign ID (vazio para novas)
+          copy.campaign,                     // Campaign
+          "Search",                          // Campaign type
+          "Google search",                   // Networks
+          Number(ctx.budget) || 10,          // Budget
+          "Standard",                        // Delivery method
+          "Daily",                           // Budget type
+          "Target CPA",                      // Bid strategy type
+          "",                                // Bid strategy (portfolio — vazio)
+          "",                                // Campaign start date
+          "",                                // Campaign end date
+          LANG_MAP[language] || language,     // Language
+          ctx.country,                       // Location
+          "",                                // Exclusion
+          "",                                // Devices
+          "",                                // Label
+          Number(ctx.target_cpa) || 5,       // Target CPA
+          "",                                // Target ROAS
+          "",                                // Display URL option
+          "",                                // Website description
+          "",                                // Target Impression Share
+          "",                                // Max CPC Bid Limit for Target IS
+          "",                                // Location Goal for Target IS
+          "",                                // Tracking template
+          "",                                // Final URL suffix
+          "",                                // Custom parameter
+          "",                                // Inventory type
+          "",                                // Campaign subtype
+          "",                                // Video ad formats
+          "No",                              // EU political ads
         ]);
       }
     });
@@ -126,16 +154,18 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
     autoWidth(ws);
   }
 
-  // ── ABA 2: GRUPOS_ANUNCIOS ───────────────────────────────────────────────
-  // Cria os grupos de anúncios antes de inserir anúncios e extensões.
+  // ── ABA 2: AdGroups_upload ─────────────────────────────────────────────────
+  // 21 colunas — idêntico ao ad_group_template.xlsx do Google Ads
   {
-    const ws = wb.addWorksheet("Ad groups");
+    const ws = wb.addWorksheet("AdGroups_upload");
     ws.properties.tabColor = { argb: `FF${TAB_COLORS.AD_GROUPS}` };
+
     addHeaders(ws, [
-      "Action",
-      "Campaign",
-      "Ad group",
-      "Status",
+      "Row Type", "Action", "Ad group status", "Campaign ID", "Campaign",
+      "Ad group ID", "Ad group", "Ad group type", "Ad rotation",
+      "Default max. CPC", "CPC%", "Max. CPM", "Max. CPV",
+      "Target CPA", "Target CPM", "TrueView target CPV", "Label",
+      "Tracking template", "Final URL suffix", "Custom parameter", "Target ROAS",
     ]);
 
     const seenGroups = new Set<string>();
@@ -144,137 +174,144 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
       const key = `${copy.campaign}|${copy.adGroup}`;
       if (!seenGroups.has(key)) {
         seenGroups.add(key);
-        addRow(ws, r++, ["Add", copy.campaign, copy.adGroup, "Enabled"]);
+        addRow(ws, r++, [
+          "Ad group",                        // Row Type
+          "Add",                             // Action
+          "Enabled",                         // Ad group status
+          "",                                // Campaign ID
+          copy.campaign,                     // Campaign
+          "",                                // Ad group ID
+          copy.adGroup,                      // Ad group
+          "",                                // Ad group type
+          "",                                // Ad rotation
+          "",                                // Default max. CPC
+          "",                                // CPC%
+          "",                                // Max. CPM
+          "",                                // Max. CPV
+          "",                                // Target CPA
+          "",                                // Target CPM
+          "",                                // TrueView target CPV
+          "",                                // Label
+          "",                                // Tracking template
+          "",                                // Final URL suffix
+          "",                                // Custom parameter
+          "",                                // Target ROAS
+        ]);
       }
     });
     ws.views = [{ state: "frozen", ySplit: 1 }];
     autoWidth(ws);
   }
 
-  // ── ABA 3: ANUNCIOS_SEARCH_RSA ───────────────────────────────────────────
+  // ── ABA 3: Ads_upload ──────────────────────────────────────────────────────
+  // 55 colunas — idêntico ao responsive_search_ad_template.xlsx do Google Ads
   {
-    const ws = wb.addWorksheet("Ads");
+    const ws = wb.addWorksheet("Ads_upload");
     ws.properties.tabColor = { argb: `FF${TAB_COLORS.ADS}` };
 
-    const headers = [
-      "Action",
-      "Campaign",
-      "Ad group",
-      "Ad type",
-      "Final URL",
+    addHeaders(ws, [
+      "Row Type", "Action", "Ad status", "Campaign ID", "Campaign",
+      "Ad group ID", "Ad group", "Ad ID", "Ad type", "Label",
       ...Array.from({ length: 15 }, (_, i) => `Headline ${i + 1}`),
       ...Array.from({ length: 4 }, (_, i) => `Description ${i + 1}`),
-      "Path 1", "Path 2", "Status",
-    ];
-    addHeaders(ws, headers);
+      ...Array.from({ length: 15 }, (_, i) => `Headline ${i + 1} position`),
+      ...Array.from({ length: 4 }, (_, i) => `Description ${i + 1} position`),
+      "Path 1", "Path 2", "Final URL", "Mobile final URL",
+      "Tracking template", "Final URL suffix", "Custom parameter",
+    ]);
 
     let r = 2;
     items.forEach(({ copy, url }) => {
+      // Preencher headlines (até 15), pad com vazios
+      const headlines: string[] = [...copy.headlines];
+      while (headlines.length < 15) headlines.push("");
+
+      // Preencher descriptions (até 4), pad com vazios
+      const descriptions: string[] = [...copy.descriptions];
+      while (descriptions.length < 4) descriptions.push("");
+
+      // Positions vazias (15 headlines + 4 descriptions)
+      const positions = Array(19).fill("");
+
       addRow(ws, r++, [
-        "Add",
-        copy.campaign,
-        copy.adGroup,
-        "Responsive search ad",
-        url,
-        ...copy.headlines,
-        ...copy.descriptions,
-        copy.path1, copy.path2, "Enabled",
+        "Ad",                              // Row Type
+        "Add",                             // Action
+        "Enabled",                         // Ad status
+        "",                                // Campaign ID
+        copy.campaign,                     // Campaign
+        "",                                // Ad group ID
+        copy.adGroup,                      // Ad group
+        "",                                // Ad ID
+        "Responsive search ad",            // Ad type
+        "",                                // Label
+        ...headlines,                      // Headline 1-15
+        ...descriptions,                   // Description 1-4
+        ...positions,                      // Headline 1-15 position + Description 1-4 position
+        copy.path1,                        // Path 1
+        copy.path2,                        // Path 2
+        url,                               // Final URL
+        "",                                // Mobile final URL
+        "",                                // Tracking template
+        "",                                // Final URL suffix
+        "",                                // Custom parameter
       ]);
     });
     ws.views = [{ state: "frozen", ySplit: 1 }];
     autoWidth(ws);
   }
 
-  // ── ABA 4: CALLOUTS ──────────────────────────────────────────────────────
+  // ── ABA 4: Keywords_upload ─────────────────────────────────────────────────
+  // 18 colunas — idêntico ao keyword_template.xlsx do Google Ads
   {
-    const ws = wb.addWorksheet("Callouts");
-    ws.properties.tabColor = { argb: `FF${TAB_COLORS.CALLOUTS}` };
+    const ws = wb.addWorksheet("Keywords_upload");
+    ws.properties.tabColor = { argb: `FF${TAB_COLORS.KEYWORDS}` };
+
     addHeaders(ws, [
-      "Asset action",
-      "Campaign",
-      "Callout text",
-      "Status",
+      "Row Type", "Action", "Keyword status", "Campaign ID", "Campaign",
+      "Ad group ID", "Ad group", "Keyword ID", "Keyword", "Type",
+      "Label", "Default max. CPC", "Max. CPV", "Final URL",
+      "Mobile final URL", "Final URL suffix", "Tracking template", "Custom parameter",
     ]);
 
+    // Gerar keywords baseadas no nome do produto
+    const seenKeywords = new Set<string>();
     let r = 2;
-    items.forEach(({ copy }) => {
-      copy.callouts.forEach(text => {
-        addRow(ws, r++, ["Add", copy.campaign, text, "Enabled"]);
+    items.forEach(({ copy, ctx }) => {
+      const product = ctx.product.toLowerCase();
+      const keywords = [
+        { keyword: product, type: "Broad match" },
+        { keyword: `${product} buy`, type: "Broad match" },
+        { keyword: `${product} order`, type: "Phrase match" },
+        { keyword: `[${product}]`, type: "Exact match" },
+        { keyword: `${product} official`, type: "Broad match" },
+      ];
+
+      keywords.forEach(({ keyword, type }) => {
+        const key = `${copy.campaign}|${copy.adGroup}|${keyword}`;
+        if (seenKeywords.has(key)) return;
+        seenKeywords.add(key);
+
+        addRow(ws, r++, [
+          "Keyword",                         // Row Type
+          "Add",                             // Action
+          "Enabled",                         // Keyword status
+          "",                                // Campaign ID
+          copy.campaign,                     // Campaign
+          "",                                // Ad group ID
+          copy.adGroup,                      // Ad group
+          "",                                // Keyword ID
+          keyword,                           // Keyword
+          type,                              // Type
+          "",                                // Label
+          "",                                // Default max. CPC
+          "",                                // Max. CPV
+          "",                                // Final URL
+          "",                                // Mobile final URL
+          "",                                // Final URL suffix
+          "",                                // Tracking template
+          "",                                // Custom parameter
+        ]);
       });
-    });
-    ws.views = [{ state: "frozen", ySplit: 1 }];
-    autoWidth(ws);
-  }
-
-  // ── ABA 5: SITELINKS ─────────────────────────────────────────────────────
-  // "Action: Add" resolve "Ação do recurso: Usar existente / ID do item: null"
-  {
-    const ws = wb.addWorksheet("Sitelinks");
-    ws.properties.tabColor = { argb: `FF${TAB_COLORS.SITELINKS}` };
-    addHeaders(ws, [
-      "Asset action",
-      "Campaign",
-      "Sitelink text",
-      "Final URL",
-      "Description line 1",
-      "Description line 2",
-      "Status",
-    ]);
-
-    let r = 2;
-    items.forEach(({ copy }) => {
-      copy.sitelinks.forEach(sl => {
-        addRow(ws, r++, ["Add", copy.campaign, sl.text, sl.url, sl.d1, sl.d2, "Enabled"]);
-      });
-    });
-    ws.views = [{ state: "frozen", ySplit: 1 }];
-    autoWidth(ws);
-  }
-
-  // ── ABA 6: SNIPPETS ──────────────────────────────────────────────────────
-  // Bulk Upload via AdsApp.bulkUploads() exige coluna unica "Structured snippet values"
-  // com valores separados por ponto-e-virgula (;). Colunas individuais "Value 1"..."Value N"
-  // sao formato do Google Ads Editor e causam "Missing value in Structured snippet values".
-  {
-    const ws = wb.addWorksheet("Structured snippets");
-    ws.properties.tabColor = { argb: `FF${TAB_COLORS.SNIPPETS}` };
-    addHeaders(ws, [
-      "Asset action",
-      "Campaign",
-      "Structured snippet header",
-      "Structured snippet values",
-    ]);
-
-    let r = 2;
-    items.forEach(({ copy }) => {
-      const joinedValues = copy.snippetValues.filter(v => v && v.trim() !== "").join(";");
-      addRow(ws, r++, ["Add", copy.campaign, copy.snippetHeader, joinedValues]);
-    });
-    ws.views = [{ state: "frozen", ySplit: 1 }];
-    autoWidth(ws);
-  }
-
-  // ── ABA 7: PROMOCOES ─────────────────────────────────────────────────────
-  {
-    const ws = wb.addWorksheet("Promotions");
-    ws.properties.tabColor = { argb: `FF${TAB_COLORS.PROMOTIONS}` };
-    addHeaders(ws, [
-      "Asset action", "Campaign", "Occasion", "Discount type",
-      "Percent off", "Promotion code", "Final URL", "Start date", "End date",
-    ]);
-
-    let r = 2;
-    items.forEach(({ copy }) => {
-      addRow(ws, r++, [
-        "Add",
-        copy.campaign,
-        copy.promo.occasion,
-        copy.promo.discountType,
-        copy.promo.percentOff,
-        copy.promo.promoCode,
-        copy.promo.finalUrl,
-        "", "",
-      ]);
     });
     ws.views = [{ state: "frozen", ySplit: 1 }];
     autoWidth(ws);
