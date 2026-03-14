@@ -94,10 +94,10 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
       "Budget",
       "Budget type",
       "Bid Strategy type",
+      "Target CPA",
       "Network: Google Search",
       "Network: Search Partners",
       "Network: Display Network",
-      "EU political ads",
     ]);
 
     const seenCampaigns = new Set<string>();
@@ -112,11 +112,11 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
           "Enabled",
           Number(ctx.budget) || 10,
           "Daily",
-          "Manual CPC",
+          "Target CPA",
+          Number(ctx.target_cpa) || 5,
           "Yes",
           "No",
           "No",
-          "None",
         ]);
       }
     });
@@ -196,7 +196,7 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
     const ws = wb.addWorksheet("Callouts");
     ws.properties.tabColor = { argb: `FF${TAB_COLORS.CALLOUTS}` };
     addHeaders(ws, [
-      "Action",
+      "Asset action",
       "Campaign",
       "Callout text",
       "Status",
@@ -218,7 +218,7 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
     const ws = wb.addWorksheet("Sitelinks");
     ws.properties.tabColor = { argb: `FF${TAB_COLORS.SITELINKS}` };
     addHeaders(ws, [
-      "Action",
+      "Asset action",
       "Campaign",
       "Sitelink text",
       "Final URL",
@@ -245,7 +245,7 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
     const ws = wb.addWorksheet("Structured snippets");
     ws.properties.tabColor = { argb: `FF${TAB_COLORS.SNIPPETS}` };
     addHeaders(ws, [
-      "Action",
+      "Asset action",
       "Campaign",
       "Structured snippet header",
       "Structured snippet values",
@@ -265,7 +265,7 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
     const ws = wb.addWorksheet("Promotions");
     ws.properties.tabColor = { argb: `FF${TAB_COLORS.PROMOTIONS}` };
     addHeaders(ws, [
-      "Action", "Campaign", "Occasion", "Discount type",
+      "Asset action", "Campaign", "Occasion", "Discount type",
       "Percent off", "Promotion code", "Final URL", "Start date", "End date",
     ]);
 

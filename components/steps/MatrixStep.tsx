@@ -29,13 +29,13 @@ var UPLOAD_OPTIONS = {
 };
 
 var SHEETS_EM_ORDEM = [
-  'CAMPANHAS',
-  'GRUPOS_ANUNCIOS',
-  'ANUNCIOS_SEARCH_RSA',
-  'CALLOUTS',
-  'SITELINKS',
-  'SNIPPETS',
-  'PROMOCOES'
+  'Campaigns',
+  'Ad groups',
+  'Ads',
+  'Callouts',
+  'Sitelinks',
+  'Structured snippets',
+  'Promotions'
 ];
 
 function main() {
