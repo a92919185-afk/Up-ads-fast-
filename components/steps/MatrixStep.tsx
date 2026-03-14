@@ -39,10 +39,13 @@ var PREVIEW_MODE = true;
 // Campanhas e Grupos precisam de mais tempo para o Google indexar
 // a entidade pai antes de criar a entidade filha.
 var UPLOAD_PIPELINE = [
-  { sheet: 'Campaigns',  sleepAfter: 60000 },  // 60s — campanha precisa existir antes do grupo
-  { sheet: 'Ad groups',  sleepAfter: 45000 },  // 45s — grupo precisa existir antes do anuncio
-  { sheet: 'Ads',        sleepAfter: 10000 },  // 10s
-  { sheet: 'Keywords',   sleepAfter: 0     }   // ultima aba, sem pausa
+  { sheet: 'Campaigns',                sleepAfter: 60000 },  // 60s — campanha precisa existir antes do grupo
+  { sheet: 'Ad groups',                sleepAfter: 45000 },  // 45s — grupo precisa existir antes do anuncio
+  { sheet: 'Ads',                      sleepAfter: 10000 },  // 10s
+  { sheet: 'Keywords',                 sleepAfter: 10000 },  // 10s — antes das extensoes
+  { sheet: 'Sitelinks_upload',         sleepAfter: 5000  },  // 5s
+  { sheet: 'Callouts_upload',          sleepAfter: 5000  },  // 5s
+  { sheet: 'Structured-snippets_upload', sleepAfter: 0   }   // ultima aba, sem pausa
 ];
 
 // ============================================================

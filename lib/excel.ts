@@ -8,6 +8,9 @@ const TAB_COLORS = {
   AD_GROUPS: "2E5E2E",
   ADS: "1F4E79",
   KEYWORDS: "375623",
+  SITELINKS: "7B3F00",
+  CALLOUTS: "4A235A",
+  SNIPPETS: "1B4F72",
 } as const;
 
 // ─── STYLE HELPERS ───────────────────────────────────────────────────────────
@@ -341,6 +344,112 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
           "",                                // Custom parameter
         ]);
       });
+    });
+    ws.views = [{ state: "frozen", ySplit: 1 }];
+    autoWidth(ws);
+  }
+
+  // ── ABA 5: Sitelinks_upload ───────────────────────────────────────────────
+  // 24 colunas — idêntico ao sitelink_template.csv do Google Ads
+  {
+    const ws = wb.addWorksheet("Sitelinks_upload");
+    ws.properties.tabColor = { argb: `FF${TAB_COLORS.SITELINKS}` };
+
+    addHeaders(ws, [
+      "Row Type", "Action", "Asset action", "Customer ID", "Level",
+      "Campaign ID", "Campaign", "Ad group ID", "Ad group", "Item ID",
+      "Sitelink text", "Final URL", "Mobile final URL", "Final URL suffix",
+      "Description", "Description 2", "Tracking template", "Custom parameter",
+      "Schedules", "Start date", "End date", "Scheduling",
+      "Device preference type", "Row tag",
+    ]);
+
+    let r = 2;
+    items.forEach(({ copy }) => {
+      copy.sitelinks.forEach(s => {
+        addRow(ws, r++, [
+          "Sitelink",                        // Row Type
+          "Add",                             // Action
+          "Create new",                      // Asset action
+          "",                                // Customer ID
+          "Campaign",                        // Level
+          "",                                // Campaign ID
+          copy.campaign,                     // Campaign
+          "",                                // Ad group ID
+          "",                                // Ad group (campaign-level)
+          "",                                // Item ID (novo)
+          s.text,                            // Sitelink text
+          s.url,                             // Final URL
+          "",                                // Mobile final URL
+          "",                                // Final URL suffix
+          s.d1,                              // Description
+          s.d2,                              // Description 2
+          "",                                // Tracking template
+          "",                                // Custom parameter
+          "",                                // Schedules
+          "",                                // Start date
+          "",                                // End date
+          "",                                // Scheduling
+          "",                                // Device preference type
+          "",                                // Row tag
+        ]);
+      });
+    });
+    ws.views = [{ state: "frozen", ySplit: 1 }];
+    autoWidth(ws);
+  }
+
+  // ── ABA 6: Callouts_upload ────────────────────────────────────────────────
+  // 5 colunas — idêntico ao callout-template.csv do Google Ads
+  {
+    const ws = wb.addWorksheet("Callouts_upload");
+    ws.properties.tabColor = { argb: `FF${TAB_COLORS.CALLOUTS}` };
+
+    addHeaders(ws, [
+      "Row type", "Action", "Campaign", "Ad group", "Callout text",
+    ]);
+
+    let r = 2;
+    items.forEach(({ copy }) => {
+      copy.callouts.forEach(callout => {
+        addRow(ws, r++, [
+          "Callout extension",               // Row type
+          "add",                             // Action (lowercase per template)
+          copy.campaign,                     // Campaign
+          "",                                // Ad group (campaign-level)
+          callout,                           // Callout text
+        ]);
+      });
+    });
+    ws.views = [{ state: "frozen", ySplit: 1 }];
+    autoWidth(ws);
+  }
+
+  // ── ABA 7: Structured-snippets_upload ─────────────────────────────────────
+  // 5 colunas — idêntico ao structured-snippet-template.csv do Google Ads
+  {
+    const ws = wb.addWorksheet("Structured-snippets_upload");
+    ws.properties.tabColor = { argb: `FF${TAB_COLORS.SNIPPETS}` };
+
+    addHeaders(ws, [
+      "Action", "Campaign", "Ad group",
+      "Structured snippet header", "Structured snippet values",
+    ]);
+
+    const seenSnippets = new Set<string>();
+    let r = 2;
+    items.forEach(({ copy }) => {
+      const key = `${copy.campaign}|${copy.snippetHeader}`;
+      if (seenSnippets.has(key)) return;
+      seenSnippets.add(key);
+
+      addRow(ws, r++, [
+        "add",                               // Action (lowercase per template)
+        copy.campaign,                       // Campaign
+        "",                                  // Ad group (campaign-level)
+        copy.snippetHeader,                  // Structured snippet header (ex: "Types")
+        copy.snippetValues.join(";"),        // Structured snippet values (separados por ;)
+      ]);
     });
     ws.views = [{ state: "frozen", ySplit: 1 }];
     autoWidth(ws);
