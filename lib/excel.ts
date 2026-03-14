@@ -416,7 +416,7 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
     items.forEach(({ copy }) => {
       copy.callouts.forEach(callout => {
         addRow(ws, r++, [
-          "Callout extension",               // Row type
+          "Callout",                           // Row type
           "add",                             // Action (lowercase per template)
           copy.campaign,                     // Campaign
           "",                                // Ad group (campaign-level)
