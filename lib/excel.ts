@@ -95,9 +95,10 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
       "Budget type",
       "Bid Strategy type",
       "Target CPA",
-      "Network: Google Search",
-      "Network: Search Partners",
-      "Network: Display Network",
+      "Search Network",
+      "Search Partners",
+      "Display Network",
+      "EU political advertising",
     ]);
 
     const seenCampaigns = new Set<string>();
@@ -117,6 +118,7 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
           "Yes",
           "No",
           "No",
+          "DOES_NOT_CONTAIN_EU_POLITICAL_ADVERTISING",
         ]);
       }
     });
