@@ -9,88 +9,130 @@ import type { MatrixItem } from "@/lib/excel";
 function buildScript(url: string) {
   const safeUrl = url.trim() || 'COLE_A_URL_DA_SUA_PLANILHA_AQUI';
   return `// ============================================================
-//  UPADSFAST — Google Ads Script V4
-//  Documentação: developers.google.com/google-ads/scripts
+//  UPADSFAST — Google Ads Bulk Upload Script V4
+//  Formato: Templates oficiais do Google Ads
+//  Metodo: newFileUpload com CSV blob
+//
+//  Abas (processadas nesta ordem):
+//    1. Campaigns
+//    2. Ad groups
+//    3. Ads
+//    4. Keywords
+//
+//  Baseado em:
+//  - Templates oficiais: campaign_template.xlsx, ad_group_template.xlsx,
+//    responsive_search_ad_template.xlsx, keyword_template.xlsx
+//  - developers.google.com/google-ads/scripts/docs/features/bulk-upload
 // ============================================================
 
 // ─── PASSO 1: Cole aqui a URL da sua Planilha Google ─────────
 var SPREADSHEET_URL = '${safeUrl}';
 
-// ─── PASSO 2: Modo de execução ───────────────────────────────
-// true  = apenas visualiza, não cria nada (recomendado primeiro)
+// ─── PASSO 2: Modo de execucao ───────────────────────────────
+// true  = apenas visualiza, nao cria nada (recomendado primeiro)
 // false = cria as campanhas de verdade no Google Ads
 var PREVIEW_MODE = true;
 
-// ─── NÃO ALTERE ABAIXO DESTA LINHA ──────────────────────────
+// ─── NAO ALTERE ABAIXO DESTA LINHA ──────────────────────────
 
-var UPLOAD_OPTIONS = {
-  fileLocale:    'en_US',
-  moneyInMicros: false
-};
-
-// Ordem de upload e pausa APÓS cada aba (ms).
+// Ordem de upload e pausa APOS cada aba (ms).
 // Campanhas e Grupos precisam de mais tempo para o Google indexar
 // a entidade pai antes de criar a entidade filha.
 var UPLOAD_PIPELINE = [
-  { sheet: 'Campaigns',          sleepAfter: 60000 },  // 60s — campanha precisa existir antes do grupo
-  { sheet: 'Ad groups',          sleepAfter: 45000 },  // 45s — grupo precisa existir antes do anúncio
-  { sheet: 'Ads',                sleepAfter: 10000 },  // 10s — anúncio antes dos assets
-  { sheet: 'Callouts',           sleepAfter: 5000  },  // 5s
-  { sheet: 'Sitelinks',          sleepAfter: 5000  },  // 5s
-  { sheet: 'Structured snippets', sleepAfter: 5000  },  // 5s
-  { sheet: 'Promotions',         sleepAfter: 0     }   // última aba, sem pausa
+  { sheet: 'Campaigns',  sleepAfter: 60000 },  // 60s — campanha precisa existir antes do grupo
+  { sheet: 'Ad groups',  sleepAfter: 45000 },  // 45s — grupo precisa existir antes do anuncio
+  { sheet: 'Ads',        sleepAfter: 10000 },  // 10s
+  { sheet: 'Keywords',   sleepAfter: 0     }   // ultima aba, sem pausa
 ];
+
+// ============================================================
 
 function main() {
   var ss = SpreadsheetApp.openByUrl(SPREADSHEET_URL);
-  Logger.log('UPADSFAST — Planilha: ' + ss.getName());
-  Logger.log('Modo: ' + (PREVIEW_MODE
-    ? 'PREVIEW — nenhuma alteracao sera feita'
-    : 'APLICAR — criando campanhas agora'));
-  Logger.log('-------------------------------------------');
+
+  Logger.log('========================================');
+  Logger.log('UPADSFAST — Bulk Upload (Templates Oficiais)');
+  Logger.log('Planilha: ' + ss.getName());
+  Logger.log('Modo: ' + (PREVIEW_MODE ? 'PREVIEW — nenhuma alteracao sera feita' : 'APLICAR — criando campanhas agora'));
+  Logger.log('========================================');
 
   for (var i = 0; i < UPLOAD_PIPELINE.length; i++) {
     var step = UPLOAD_PIPELINE[i];
-    processarAba(ss, step.sheet);
+    Logger.log('');
+    Logger.log('>>> Processando: ' + step.sheet + ' (' + (i + 1) + '/' + UPLOAD_PIPELINE.length + ')');
+    uploadSheet(ss, step.sheet);
 
     if (step.sleepAfter > 0) {
       var secs = Math.round(step.sleepAfter / 1000);
-      Logger.log('Aguardando ' + secs + 's para indexacao antes da proxima aba...');
+      Logger.log('  Aguardando ' + secs + 's para indexacao antes da proxima aba...');
       Utilities.sleep(step.sleepAfter);
     }
   }
 
-  Logger.log('-------------------------------------------');
-  Logger.log('Processamento concluido.');
+  Logger.log('');
+  Logger.log('========================================');
+  Logger.log('UPADSFAST: Finalizado.');
+  Logger.log('Verifique em: Ferramentas > Acoes em massa > Uploads');
+  Logger.log('========================================');
 }
 
-function processarAba(ss, nomeAba) {
-  var sheet = ss.getSheetByName(nomeAba);
-
+function uploadSheet(ss, sheetName) {
+  var sheet = ss.getSheetByName(sheetName);
   if (!sheet) {
-    Logger.log('[PULAR] "' + nomeAba + '" — aba não encontrada.');
+    Logger.log('  [PULAR] "' + sheetName + '" — aba nao encontrada.');
     return;
   }
 
-  if (sheet.getLastRow() <= 1) {
-    Logger.log('[PULAR] "' + nomeAba + '" — sem dados.');
+  var values = sheet.getDataRange().getValues();
+
+  if (values.length <= 1) {
+    Logger.log('  [PULAR] "' + sheetName + '" — sem dados.');
     return;
   }
+
+  // Montar CSV em memoria com o MESMO cabecalho do template
+  var csvRows = [];
+  for (var i = 0; i < values.length; i++) {
+    var cells = [];
+    for (var j = 0; j < values[i].length; j++) {
+      cells.push(cleanCell(values[i][j]));
+    }
+    csvRows.push(cells.join(','));
+  }
+  var csv = csvRows.join('\\n');
+
+  var blob = Utilities.newBlob(csv, 'text/csv', sheetName + '.csv');
+  var upload = AdsApp.bulkUploads().newFileUpload(blob);
+  upload.forCampaignManagement();
 
   try {
-    var upload = AdsApp.bulkUploads().newFileUpload(sheet, UPLOAD_OPTIONS);
-    upload.forCampaignManagement();
-
     if (PREVIEW_MODE) {
       upload.preview();
-      Logger.log('[PREVIEW] "' + nomeAba + '" — enviado para visualização.');
+      Logger.log('  [PREVIEW] "' + sheetName + '": ' + (values.length - 1) + ' linha(s) enviada(s) para visualizacao.');
     } else {
       upload.apply();
-      Logger.log('[OK]      "' + nomeAba + '" — aplicado com sucesso.');
+      Logger.log('  [OK] "' + sheetName + '": ' + (values.length - 1) + ' linha(s) aplicada(s).');
     }
   } catch (e) {
-    Logger.log('[ERRO]    "' + nomeAba + '" — ' + e.message);
+    Logger.log('  [ERRO] "' + sheetName + '": ' + e.message);
   }
+}
+
+// Limpa celula para formato CSV valido
+function cleanCell(value) {
+  if (value == null || value === undefined) return '';
+
+  var text = String(value).trim();
+
+  // Remover string "None" (Google Ads rejeita)
+  if (text.toLowerCase() === 'none') return '';
+
+  // Escapar virgulas e aspas para CSV
+  if (text.indexOf(',') > -1 || text.indexOf('"') > -1 || text.indexOf('\\n') > -1) {
+    text = '"' + text.replace(/"/g, '""') + '"';
+  }
+
+  return text;
 }`;
 }
 
