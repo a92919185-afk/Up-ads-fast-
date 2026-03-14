@@ -72,12 +72,41 @@ export interface MatrixItem {
   url: string;
 }
 
-// ─── LANGUAGE → COUNTRY MAPPING ──────────────────────────────────────────────
+// ─── LANGUAGE CODE MAP ───────────────────────────────────────────────────────
+// Coluna Language: código aceito pelo Google Ads (ex: "de", "en", "pt")
 
 const LANG_MAP: Record<string, string> = {
   en: "en", pt: "pt", es: "es", de: "de", fr: "fr",
   fi: "fi", da: "da", ro: "ro", bg: "bg",
 };
+
+// ─── COUNTRY CODE → FULL NAME ────────────────────────────────────────────────
+// Coluna Location: Google Ads exige nome completo do país (ex: "Germany", não "DE")
+
+const COUNTRY_MAP: Record<string, string> = {
+  DE: "Germany",       AT: "Austria",        CH: "Switzerland",
+  US: "United States", GB: "United Kingdom", AU: "Australia",
+  CA: "Canada",        NZ: "New Zealand",    IE: "Ireland",
+  BR: "Brazil",        PT: "Portugal",
+  ES: "Spain",         MX: "Mexico",         AR: "Argentina",
+  CO: "Colombia",      CL: "Chile",          PE: "Peru",
+  FR: "France",        BE: "Belgium",        LU: "Luxembourg",
+  IT: "Italy",         NL: "Netherlands",    PL: "Poland",
+  SE: "Sweden",        NO: "Norway",         DK: "Denmark",
+  FI: "Finland",       RO: "Romania",        BG: "Bulgaria",
+  CZ: "Czech Republic", HU: "Hungary",       SK: "Slovakia",
+  HR: "Croatia",       GR: "Greece",         TR: "Turkey",
+  ZA: "South Africa",  NG: "Nigeria",        KE: "Kenya",
+  IN: "India",         PH: "Philippines",    SG: "Singapore",
+  MY: "Malaysia",      TH: "Thailand",       ID: "Indonesia",
+  JP: "Japan",         KR: "South Korea",    TW: "Taiwan",
+  HK: "Hong Kong",     AE: "United Arab Emirates",
+};
+
+function resolveCountry(country: string): string {
+  const upper = country.toUpperCase().trim();
+  return COUNTRY_MAP[upper] ?? country;
+}
 
 // ─── MAIN EXPORT ─────────────────────────────────────────────────────────────
 // Gera planilha com 4 abas no formato EXATO dos templates oficiais do Google Ads:
@@ -129,7 +158,7 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
           "",                                // Campaign start date
           "",                                // Campaign end date
           LANG_MAP[language] || language,     // Language
-          ctx.country,                       // Location
+          resolveCountry(ctx.country),       // Location (nome completo, ex: "Germany")
           "",                                // Exclusion
           "",                                // Devices
           "",                                // Label
