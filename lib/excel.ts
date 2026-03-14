@@ -153,7 +153,7 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
           Number(ctx.budget) || 10,          // Budget
           "Standard",                        // Delivery method
           "Daily",                           // Budget type
-          "Target CPA",                      // Bid strategy type
+          "Manual CPC",                      // Bid strategy type
           "",                                // Bid strategy (portfolio — vazio)
           "",                                // Campaign start date
           "",                                // Campaign end date
@@ -162,7 +162,7 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
           "",                                // Exclusion
           "",                                // Devices
           "",                                // Label
-          Number(ctx.target_cpa) || 5,       // Target CPA
+          "",                                // Target CPA (vazio — Manual CPC não usa)
           "",                                // Target ROAS
           "",                                // Display URL option
           "",                                // Website description
@@ -311,7 +311,7 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
         { keyword: product, type: "Broad match" },
         { keyword: `${product} buy`, type: "Broad match" },
         { keyword: `${product} order`, type: "Phrase match" },
-        { keyword: `[${product}]`, type: "Exact match" },
+        { keyword: product, type: "Exact match" },
         { keyword: `${product} official`, type: "Broad match" },
       ];
 
