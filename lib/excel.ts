@@ -112,11 +112,14 @@ function resolveCountry(country: string): string {
 }
 
 // ─── MAIN EXPORT ─────────────────────────────────────────────────────────────
-// Gera planilha com 4 abas no formato EXATO dos templates oficiais do Google Ads:
-//   1. Campaigns_upload  (33 colunas — template campaign_template.xlsx)
-//   2. AdGroups_upload   (21 colunas — template ad_group_template.xlsx)
-//   3. Ads_upload        (55 colunas — template responsive_search_ad_template.xlsx)
-//   4. Keywords_upload   (18 colunas — template keyword_template.xlsx)
+// Gera planilha com 7 abas no formato EXATO dos templates oficiais do Google Ads:
+//   1. Campaigns               (33 colunas — campaign_template.xlsx)
+//   2. Ad groups               (21 colunas — ad_group_template.xlsx)
+//   3. Ads                     (55 colunas — responsive_search_ad_template.xlsx)
+//   4. Keywords                (18 colunas — keyword_template.xlsx)
+//   5. Sitelinks_upload        (24 colunas — sitelink_template.csv)
+//   6. Callouts_upload         (5 colunas  — callout-template.csv)
+//   7. Structured-snippets_upload (5 colunas — structured-snippet-template.csv)
 
 export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
   const wb = new ExcelJS.Workbook();
@@ -319,7 +322,7 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
       ];
 
       keywords.forEach(({ keyword, type }) => {
-        const key = `${copy.campaign}|${copy.adGroup}|${keyword}`;
+        const key = `${copy.campaign}|${copy.adGroup}|${keyword}|${type}`;
         if (seenKeywords.has(key)) return;
         seenKeywords.add(key);
 
