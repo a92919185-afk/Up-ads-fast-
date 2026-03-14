@@ -28,35 +28,40 @@ var UPLOAD_OPTIONS = {
   moneyInMicros: false
 };
 
-var SHEETS_EM_ORDEM = [
-  'Campaigns',
-  'Ad groups',
-  'Ads',
-  'Callouts',
-  'Sitelinks',
-  'Structured snippets',
-  'Promotions'
+// Ordem de upload e pausa APÓS cada aba (ms).
+// Campanhas e Grupos precisam de mais tempo para o Google indexar
+// a entidade pai antes de criar a entidade filha.
+var UPLOAD_PIPELINE = [
+  { sheet: 'Campaigns',          sleepAfter: 60000 },  // 60s — campanha precisa existir antes do grupo
+  { sheet: 'Ad groups',          sleepAfter: 45000 },  // 45s — grupo precisa existir antes do anúncio
+  { sheet: 'Ads',                sleepAfter: 10000 },  // 10s — anúncio antes dos assets
+  { sheet: 'Callouts',           sleepAfter: 5000  },  // 5s
+  { sheet: 'Sitelinks',          sleepAfter: 5000  },  // 5s
+  { sheet: 'Structured snippets', sleepAfter: 5000  },  // 5s
+  { sheet: 'Promotions',         sleepAfter: 0     }   // última aba, sem pausa
 ];
 
 function main() {
   var ss = SpreadsheetApp.openByUrl(SPREADSHEET_URL);
   Logger.log('UPADSFAST — Planilha: ' + ss.getName());
   Logger.log('Modo: ' + (PREVIEW_MODE
-    ? 'PREVIEW — nenhuma alteração será feita'
+    ? 'PREVIEW — nenhuma alteracao sera feita'
     : 'APLICAR — criando campanhas agora'));
   Logger.log('-------------------------------------------');
 
-  for (var i = 0; i < SHEETS_EM_ORDEM.length; i++) {
-    processarAba(ss, SHEETS_EM_ORDEM[i]);
-    // Pausa obrigatória entre uploads para evitar bloqueio do Google
-    if (i < SHEETS_EM_ORDEM.length - 1) {
-      Logger.log('Aguardando 5 segundos antes do próximo upload...');
-      Utilities.sleep(5000);
+  for (var i = 0; i < UPLOAD_PIPELINE.length; i++) {
+    var step = UPLOAD_PIPELINE[i];
+    processarAba(ss, step.sheet);
+
+    if (step.sleepAfter > 0) {
+      var secs = Math.round(step.sleepAfter / 1000);
+      Logger.log('Aguardando ' + secs + 's para indexacao antes da proxima aba...');
+      Utilities.sleep(step.sleepAfter);
     }
   }
 
   Logger.log('-------------------------------------------');
-  Logger.log('Processamento concluído.');
+  Logger.log('Processamento concluido.');
 }
 
 function processarAba(ss, nomeAba) {

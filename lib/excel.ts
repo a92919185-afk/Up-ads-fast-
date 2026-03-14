@@ -154,7 +154,7 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
     const ws = wb.addWorksheet("Ads");
     ws.properties.tabColor = { argb: `FF${TAB_COLORS.ADS}` };
 
-    const officialHeaders = [
+    const headers = [
       "Action",
       "Campaign",
       "Ad group",
@@ -164,15 +164,10 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
       ...Array.from({ length: 4 }, (_, i) => `Description ${i + 1}`),
       "Path 1", "Path 2", "Status",
     ];
-    const auxHeaders = [
-      "Product_Name", "Country", "Language",
-      "Discount_Value", "Guarantee_Days",
-      "Has_Free_Shipping", "Free_Ship_Min", "Currency", "Price",
-    ];
-    addHeaders(ws, [...officialHeaders, ...auxHeaders], officialHeaders.length);
+    addHeaders(ws, headers);
 
     let r = 2;
-    items.forEach(({ copy, ctx, language, url }) => {
+    items.forEach(({ copy, url }) => {
       addRow(ws, r++, [
         "Add",
         copy.campaign,
@@ -182,9 +177,6 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
         ...copy.headlines,
         ...copy.descriptions,
         copy.path1, copy.path2, "Enabled",
-        ctx.product, ctx.country, language,
-        ctx.discount, ctx.guarantee, ctx.has_free_shipping,
-        ctx.ship_min, ctx.currency, ctx.price,
       ]);
     });
     ws.views = [{ state: "frozen", ySplit: 1 }];

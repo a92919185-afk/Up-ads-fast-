@@ -588,17 +588,20 @@ export function generateAllCopy(ctx: CopyContext, lang: string, finalUrl: string
   const descriptions = validD.slice(0, 4).map(t => renderTrunc(t, ctx, 90));
   const callouts = tmpl.callouts.filter(t => !skip(t)).map(t => renderTrunc(t, ctx, 25));
 
-  // Google rejects identical URLs — use distinct valid query params per sitelink
+  // Google rejects identical URLs — use distinct valid query params per sitelink.
+  // Uses URL API to handle bases that already contain query params (e.g. UTMs).
   const base = finalUrl.replace(/\/+$/, "");
-  const urlVariants = [
-    base,
-    base + "?sl=2",
-    base + "?sl=3",
-    base + "?sl=4",
-    base + "?sl=5",
-    base + "?sl=6",
-    base + "?sl=7",
-  ];
+  const urlVariants = [base];
+  for (let n = 2; n <= 7; n++) {
+    try {
+      const u = new URL(base);
+      u.searchParams.set("sl", String(n));
+      urlVariants.push(u.toString());
+    } catch {
+      // Fallback for malformed URLs — safe concat with ? or &
+      urlVariants.push(base + (base.includes("?") ? "&" : "?") + "sl=" + n);
+    }
+  }
   const sitelinks: SitelinkEntry[] = tmpl.sitelinks
     .filter(([txt, d1, d2]) => !skip(txt + d1 + d2))
     .map(([txt, d1, d2], i) => ({
