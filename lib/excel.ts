@@ -121,7 +121,7 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
   // ── ABA 1: Campaigns_upload ────────────────────────────────────────────────
   // 33 colunas — idêntico ao campaign_template.xlsx do Google Ads
   {
-    const ws = wb.addWorksheet("Campaigns_upload");
+    const ws = wb.addWorksheet("Campaigns");
     ws.properties.tabColor = { argb: `FF${TAB_COLORS.CAMPAIGNS}` };
 
     // Cabeçalhos EXATOS do template oficial (33 colunas)
@@ -186,7 +186,7 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
   // ── ABA 2: AdGroups_upload ─────────────────────────────────────────────────
   // 21 colunas — idêntico ao ad_group_template.xlsx do Google Ads
   {
-    const ws = wb.addWorksheet("AdGroups_upload");
+    const ws = wb.addWorksheet("Ad groups");
     ws.properties.tabColor = { argb: `FF${TAB_COLORS.AD_GROUPS}` };
 
     addHeaders(ws, [
@@ -235,7 +235,7 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
   // ── ABA 3: Ads_upload ──────────────────────────────────────────────────────
   // 55 colunas — idêntico ao responsive_search_ad_template.xlsx do Google Ads
   {
-    const ws = wb.addWorksheet("Ads_upload");
+    const ws = wb.addWorksheet("Ads");
     ws.properties.tabColor = { argb: `FF${TAB_COLORS.ADS}` };
 
     addHeaders(ws, [
@@ -292,7 +292,7 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
   // ── ABA 4: Keywords_upload ─────────────────────────────────────────────────
   // 18 colunas — idêntico ao keyword_template.xlsx do Google Ads
   {
-    const ws = wb.addWorksheet("Keywords_upload");
+    const ws = wb.addWorksheet("Keywords");
     ws.properties.tabColor = { argb: `FF${TAB_COLORS.KEYWORDS}` };
 
     addHeaders(ws, [
