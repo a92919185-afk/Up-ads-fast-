@@ -315,10 +315,6 @@ export async function generateXlsx(items: MatrixItem[]): Promise<Buffer> {
       const product = ctx.product.toLowerCase();
       const keywords = [
         { keyword: product, type: "Broad match" },
-        { keyword: `${product} buy`, type: "Broad match" },
-        { keyword: `${product} order`, type: "Phrase match" },
-        { keyword: product, type: "Exact match" },
-        { keyword: `${product} official`, type: "Broad match" },
       ];
 
       keywords.forEach(({ keyword, type }) => {
