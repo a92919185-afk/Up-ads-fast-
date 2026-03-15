@@ -575,8 +575,20 @@ export function generateAllCopy(ctx: CopyContext, lang: string, finalUrl: string
 
   const campaign = `Search - ${ctx.product} - ${ctx.country}`;
   const adGroup = `${ctx.product} - Offer`;
-  const path1 = trunc(ctx.product.replace(/\s+/g, "-") + "-Oficial", 15);
-  const path2 = ctx.discount ? trunc("Off-" + ctx.discount + "-Hoje", 15) : trunc(ctx.product.replace(/\s+/g, "-") + "-Agora", 15);
+  const PATH_LABELS: Record<string, { official: string; today: string; now: string }> = {
+    en: { official: "Official", today: "Today", now: "Now" },
+    pt: { official: "Oficial", today: "Hoje", now: "Agora" },
+    es: { official: "Oficial", today: "Hoy", now: "Ahora" },
+    de: { official: "Offiziell", today: "Heute", now: "Jetzt" },
+    fr: { official: "Officiel", today: "Aujourdhui", now: "Maintenant" },
+    fi: { official: "Virallinen", today: "Tanaan", now: "Nyt" },
+    da: { official: "Officiel", today: "Idag", now: "Nu" },
+    ro: { official: "Oficial", today: "Azi", now: "Acum" },
+    bg: { official: "Oficlalen", today: "Dnes", now: "Sega" },
+  };
+  const pl = PATH_LABELS[lang] ?? PATH_LABELS["en"];
+  const path1 = trunc(ctx.product.replace(/\s+/g, "-") + "-" + pl.official, 15);
+  const path2 = ctx.discount ? trunc("Off-" + ctx.discount + "-" + pl.today, 15) : trunc(ctx.product.replace(/\s+/g, "-") + "-" + pl.now, 15);
 
   // Filter: skip templates with empty vars OR shipping refs when no free shipping
   const skip = (t: string) => usesEmptyVar(t, ctx) || (noShip && hasShippingRef(t));
